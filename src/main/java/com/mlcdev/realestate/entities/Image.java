@@ -1,0 +1,30 @@
+package com.mlcdev.realestate.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "images")
+public class Image {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    private UUID id;
+
+    @Column(name = "name_image")
+    private String name;
+
+    @Column(name = "url_image")
+    private String url;
+
+    @ManyToOne
+    @JoinColumn(name = "property_id")
+    private Property property;
+}
