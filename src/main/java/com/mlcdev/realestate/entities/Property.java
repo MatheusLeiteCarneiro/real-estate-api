@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,8 +27,8 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyType type;
     @Enumerated(EnumType.STRING)
-
     private PropertyStatus status;
+
     private Integer suites;
     private Integer bedrooms;
     private Integer bathrooms;
@@ -35,5 +37,9 @@ public class Property {
 
     @Embedded
     private Address address;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Image> images = new HashSet<>();
+
 
 }

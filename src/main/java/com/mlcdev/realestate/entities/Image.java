@@ -1,12 +1,15 @@
 package com.mlcdev.realestate.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "images")
 public class Image {
 
@@ -20,4 +23,8 @@ public class Image {
 
     @Column(name = "url_image")
     private String url;
+
+    @ManyToOne
+    @JoinColumn(name = "property_id")
+    private Property property;
 }
