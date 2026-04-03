@@ -18,10 +18,7 @@ public class Image {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "name_image")
-    private String name;
-
-    @Column(name = "url_image")
+    @Column(name = "url")
     private String url;
 
     @ManyToOne
