@@ -1,0 +1,49 @@
+package com.mlcdev.realestate.dto;
+
+import com.mlcdev.realestate.entities.PropertyStatus;
+import com.mlcdev.realestate.entities.PropertyType;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
+public class PropertyDTO {
+
+    private UUID id;
+    private String title;
+    private String description;
+    private BigDecimal price;
+
+    private PropertyType type;
+    private PropertyStatus status;
+
+    private Integer suites;
+    private Integer bedrooms;
+    private Integer bathrooms;
+    private Double area;
+    private Integer parkingSpots;
+
+    private AddressDTO address;
+
+    @Builder.Default
+    private Set<ImageDTO> images = new HashSet<>();
+
+    public void addImage(ImageDTO imageDTO){
+        imageDTO.setProperty(this);
+        images.add(imageDTO);
+    }
+
+    public void removeImage(ImageDTO imageDTO){
+        imageDTO.setProperty(null);
+        images.remove(imageDTO);
+    }
+
+}
