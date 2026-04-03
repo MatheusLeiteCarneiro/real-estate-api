@@ -31,6 +31,7 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyType type;
     @Enumerated(EnumType.STRING)
+    
     private PropertyStatus status;
 
     private Integer suites;
@@ -43,6 +44,7 @@ public class Property {
     private Address address;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Image> images = new HashSet<>();
 
 
