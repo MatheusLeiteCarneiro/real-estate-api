@@ -1,0 +1,19 @@
+package com.mlcdev.realestate.dto;
+
+import java.util.UUID;
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ImageDTO {
+     
+    private UUID id;
+
+    private String url;
+
+    private PropertyDTO property;
+    
+}

@@ -10,6 +10,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "images")
 public class Image {
 
@@ -18,10 +19,7 @@ public class Image {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "name_image")
-    private String name;
-
-    @Column(name = "url_image")
+    @Column(name = "url")
     private String url;
 
     @ManyToOne

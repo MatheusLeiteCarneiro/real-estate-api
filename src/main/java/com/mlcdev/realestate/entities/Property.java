@@ -56,4 +56,13 @@ public class Property {
     private Instant updatedAt;
 
 
+    public void addImage(Image image){
+        image.setProperty(this);
+        images.add(image);
+    }
+
+        public void removeImage(Image image){
+        image.setProperty(null);
+        images.remove(image);
+    }
 }
