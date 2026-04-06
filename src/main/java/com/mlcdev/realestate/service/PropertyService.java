@@ -15,7 +15,11 @@ import java.util.UUID;
 @Service
 public class PropertyService {
 
-    private PropertyRepository propertyRepository;
+    private final PropertyRepository propertyRepository;
+
+    public PropertyService(PropertyRepository propertyRepository) {
+        this.propertyRepository = propertyRepository;
+    }
 
     public Page<PropertyDTO> findAll(Pageable pageable){
         Page<Property> properties = propertyRepository.findAll(pageable);
