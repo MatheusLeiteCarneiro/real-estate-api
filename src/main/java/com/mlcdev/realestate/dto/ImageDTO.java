@@ -14,6 +14,5 @@ public class ImageDTO {
 
     private String url;
 
-    private PropertyDTO property;
-    
+    private Boolean isPrimary;
 }

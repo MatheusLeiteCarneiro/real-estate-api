@@ -5,6 +5,7 @@ import com.mlcdev.realestate.entities.PropertyType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 
-public class PropertyDTO {
+public class PropertyDetailDTO {
 
     private UUID id;
     private String title;
@@ -36,14 +37,6 @@ public class PropertyDTO {
     @Builder.Default
     private Set<ImageDTO> images = new HashSet<>();
 
-    public void addImage(ImageDTO imageDTO){
-        imageDTO.setProperty(this);
-        images.add(imageDTO);
-    }
-
-    public void removeImage(ImageDTO imageDTO){
-        imageDTO.setProperty(null);
-        images.remove(imageDTO);
-    }
-
+    private Instant createdAt;
+    private Instant updatedAt;
 }

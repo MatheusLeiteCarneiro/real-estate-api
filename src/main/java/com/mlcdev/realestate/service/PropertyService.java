@@ -1,6 +1,7 @@
 package com.mlcdev.realestate.service;
 
-import com.mlcdev.realestate.dto.PropertyDTO;
+import com.mlcdev.realestate.dto.PropertyDetailDTO;
+import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
@@ -21,13 +22,13 @@ public class PropertyService {
         this.propertyRepository = propertyRepository;
     }
 
-    public Page<PropertyDTO> findAll(Pageable pageable){
+    public Page<PropertySummaryDTO> findAll(Pageable pageable){
         Page<Property> properties = propertyRepository.findAll(pageable);
-        return properties.map(PropertyMapper::entityToDTO);
+        return properties.map(PropertyMapper::entityToSummaryDTO);
     }
 
-    public PropertyDTO findById(UUID id){
-        return PropertyMapper.entityToDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Employee with ID: " + id + " not found")));
+    public PropertyDetailDTO findById(UUID id){
+        return PropertyMapper.entityToDetailDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Employee with ID: " + id + " not found")));
     }
 
 
