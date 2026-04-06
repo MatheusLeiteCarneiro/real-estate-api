@@ -37,12 +37,10 @@ public class PropertyDTO {
     private Set<ImageDTO> images = new HashSet<>();
 
     public void addImage(ImageDTO imageDTO){
-        imageDTO.setProperty(this);
         images.add(imageDTO);
     }
 
     public void removeImage(ImageDTO imageDTO){
-        imageDTO.setProperty(null);
         images.remove(imageDTO);
     }
 

@@ -11,7 +11,7 @@ public class ImageMapper {
         return ImageDTO.builder()
                 .id(entity.getId())
                 .url(entity.getUrl())
-                .property(PropertyMapper.entityToDTO(entity.getProperty()))
+                .isPrimary(entity.isPrimary())
                 .build();
     }
 
