@@ -118,11 +118,12 @@
 			<artifactId>cloudinary-core</artifactId>
 			<version>2.3.2</version>
 		</dependency>
-		<!-- Source: https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http45 -->
+		<!-- Source: https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http5 -->
 		<dependency>
 			<groupId>com.cloudinary</groupId>
-			<artifactId>cloudinary-http45</artifactId>
-			<version>1.39.0</version>
+			<artifactId>cloudinary-http5</artifactId>
+			<version>2.3.2</version>
+			<scope>compile</scope>
 		</dependency>
 		<!-- Source: https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
 		<dependency>
