@@ -22,6 +22,9 @@ public class Image {
     @Column(name = "url")
     private String url;
 
+    @Column(name = "is_primary")
+    private boolean isPrimary;
+
     @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
