@@ -27,6 +27,8 @@ public class PropertyMapper {
                 .parkingSpots(entity.getParkingSpots())
                 .address(AddressMapper.entityToDTO(entity.getAddress()))
                 .images(entity.getImages().stream().map(ImageMapper::entityToDTO).collect(Collectors.toSet()))
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
 
 
