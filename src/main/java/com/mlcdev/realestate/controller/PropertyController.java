@@ -1,7 +1,8 @@
 package com.mlcdev.realestate.controller;
 
 
-import com.mlcdev.realestate.dto.PropertyDTO;
+import com.mlcdev.realestate.dto.PropertyDetailDTO;
+import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -21,14 +22,14 @@ public class PropertyController {
     private final PropertyService propertyService;
 
     @GetMapping
-    public ResponseEntity<Page<PropertyDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
-        Page<PropertyDTO> propertyPage = propertyService.findAll(pageable);
+    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
+        Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
         return ResponseEntity.ok(propertyPage);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PropertyDTO> findPropertyById(@PathVariable UUID id){
-        PropertyDTO propertyDTO = propertyService.findById(id);
+    public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id){
+        PropertyDetailDTO propertyDTO = propertyService.findById(id);
         return ResponseEntity.ok(propertyDTO);
     }
 
