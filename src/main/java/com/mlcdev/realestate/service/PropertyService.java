@@ -1,5 +1,6 @@
 package com.mlcdev.realestate.service;
 
+import com.mlcdev.realestate.dto.PropertyCreateDTO;
 import com.mlcdev.realestate.dto.PropertyDetailDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Property;
@@ -32,6 +33,13 @@ public class PropertyService {
     @Transactional(readOnly = true)
     public PropertyDetailDTO findById(UUID id){
         return PropertyMapper.entityToDetailDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Employee with ID: " + id + " not found")));
+    }
+
+    @Transactional
+    public PropertyDetailDTO create(PropertyCreateDTO createDTO){
+        Property property = PropertyMapper.createDTOToEntity(createDTO);
+        return PropertyMapper.entityToDetailDTO(propertyRepository.save(property));
+
     }
 
 
