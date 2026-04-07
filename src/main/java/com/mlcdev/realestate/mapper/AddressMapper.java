@@ -20,4 +20,16 @@ public class AddressMapper {
                 .zipCode(address.getZipCode())
                 .build();
     }
+
+    public static Address dtoToEntity(AddressDTO dto){
+        return Address.builder()
+                .street(dto.getStreet())
+                .number(dto.getNumber())
+                .complement(dto.getComplement())
+                .neighborhood(dto.getNeighborhood())
+                .city(dto.getCity())
+                .state(dto.getState())
+                .zipCode(dto.getZipCode())
+                .build();
+    }
 }
