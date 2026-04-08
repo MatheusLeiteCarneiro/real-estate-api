@@ -1,5 +1,6 @@
 package com.mlcdev.realestate.mapper;
 
+import com.mlcdev.realestate.dto.PropertyCreateDTO;
 import com.mlcdev.realestate.dto.PropertyDetailDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Image;
@@ -52,6 +53,22 @@ public class PropertyMapper {
                 .primaryImage(entity.getImages().stream().filter(Image::isPrimary).findFirst().map(ImageMapper::entityToDTO).orElse(null))
                 .build();
 
+
+    }
+
+    public static Property createDTOToEntity(PropertyCreateDTO dto){
+        return Property.builder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .type(dto.getType())
+                .suites(dto.getSuites())
+                .bedrooms(dto.getBedrooms())
+                .bathrooms(dto.getBathrooms())
+                .area(dto.getArea())
+                .parkingSpots(dto.getParkingSpots())
+                .address(AddressMapper.dtoToEntity(dto.getAddress()))
+                .build();
 
     }
 

@@ -30,9 +30,10 @@ public class Property {
 
     @Enumerated(EnumType.STRING)
     private PropertyType type;
+
     @Enumerated(EnumType.STRING)
-    
-    private PropertyStatus status;
+    @Builder.Default
+    private PropertyStatus status = PropertyStatus.AVAILABLE;
 
     private Integer suites;
     private Integer bedrooms;
