@@ -38,7 +38,7 @@ public class PropertyService {
     @Transactional
     public PropertyDetailDTO create(PropertyCreateDTO createDTO){
         Property property = PropertyMapper.createDTOToEntity(createDTO);
-        return PropertyMapper.entityToDetailDTO(propertyRepository.save(property));
+        return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(property));
 
     }
 
