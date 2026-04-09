@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 public class PropertyCreateDTO {
 
     @NotBlank(message = "This field should not be left blank")
+    @Size(min = 5, message = "The Title should contain at least 5 characters")
     private String title;
 
     @NotBlank(message = "This field should not be left blank")
