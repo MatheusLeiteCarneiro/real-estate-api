@@ -8,6 +8,7 @@ import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
 import com.mlcdev.realestate.repository.PropertyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-
+@RequiredArgsConstructor
 @Service
 public class PropertyService {
 
     private final PropertyRepository propertyRepository;
-
-    public PropertyService(PropertyRepository propertyRepository) {
-        this.propertyRepository = propertyRepository;
-    }
 
     @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findAll(Pageable pageable){
