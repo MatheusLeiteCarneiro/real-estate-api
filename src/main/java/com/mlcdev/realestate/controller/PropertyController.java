@@ -3,6 +3,7 @@ package com.mlcdev.realestate.controller;
 
 import com.mlcdev.realestate.dto.PropertyCreateDTO;
 import com.mlcdev.realestate.dto.PropertyDetailDTO;
+import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.service.PropertyService;
 import jakarta.validation.Valid;
@@ -42,6 +43,12 @@ public class PropertyController {
         PropertyDetailDTO createdDTO = propertyService.create(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdDTO.getId()).toUri();
         return ResponseEntity.created(uri).body(createdDTO);
+    }
+
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id){
+        PropertyDetailDTO responseDto = propertyService.update(id ,dto);
+        return ResponseEntity.ok(responseDto);
     }
 
 }
