@@ -2,6 +2,7 @@ package com.mlcdev.realestate.service;
 
 import com.mlcdev.realestate.dto.PropertyCreateDTO;
 import com.mlcdev.realestate.dto.PropertyDetailDTO;
+import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.NotFoundException;
@@ -32,7 +33,7 @@ public class PropertyService {
 
     @Transactional(readOnly = true)
     public PropertyDetailDTO findById(UUID id){
-        return PropertyMapper.entityToDetailDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Employee with ID: " + id + " not found")));
+        return PropertyMapper.entityToDetailDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found")));
     }
 
     @Transactional
@@ -40,6 +41,13 @@ public class PropertyService {
         Property property = PropertyMapper.createDTOToEntity(createDTO);
         return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(property));
 
+    }
+
+    @Transactional
+    public PropertyDetailDTO update(UUID id, PropertyPatchDTO dto){
+        Property entity = propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
+        Property updatedEntity = PropertyMapper.applyPatchDTOToEntity(dto, entity);
+        return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(updatedEntity));
     }
 
 
