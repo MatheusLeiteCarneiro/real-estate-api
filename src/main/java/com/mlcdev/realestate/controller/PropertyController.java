@@ -51,4 +51,10 @@ public class PropertyController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProperty(@PathVariable UUID id){
+        propertyService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
