@@ -50,7 +50,11 @@ public class PropertyService {
         return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(updatedEntity));
     }
 
-
+    @Transactional
+    public void delete(UUID id) {
+        Property entity = propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
+        propertyRepository.delete(entity);
+    }
 }
 
 
