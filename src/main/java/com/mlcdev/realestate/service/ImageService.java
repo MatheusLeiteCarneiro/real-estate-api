@@ -2,6 +2,7 @@ package com.mlcdev.realestate.service;
 
 import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
+import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ImageService {
 
     @Transactional(readOnly = true)
     public ImageDTO findPrimaryImage(UUID propertyId){
-        Image primaryImage = imageRepository.findPropertyPrimaryImage(propertyId);
+        Image primaryImage = imageRepository.findPropertyPrimaryImage(propertyId).orElseThrow(() -> new NotFoundException("Image not found"));
         return ImageMapper.entityToDTO(primaryImage);
     }
 
