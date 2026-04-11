@@ -4,11 +4,13 @@ import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.EmptyResourceException;
+import com.mlcdev.realestate.exception.FileStorageException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
 import com.mlcdev.realestate.repository.PropertyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ImageService {
@@ -55,14 +58,27 @@ public class ImageService {
         if (noPrimary){
             images.getFirst().setPrimary(true);
         }
+        List<String> uploadedIdentifiers = new ArrayList<>();
+        try{
 
-        for(int i = 0; i < files.size(); i++){
-            Map<String, String> fileInformation = fileStorageService.uploadFile(files.get(i), propertyImageFolder);
-            images.get(i).setUrl(fileInformation.get("url"));
-            images.get(i).setFileIdentifier(fileInformation.get("fileIdentifier"));
+            for (int i = 0; i < files.size(); i++) {
+                Map<String, String> fileInformation = fileStorageService.uploadFile(files.get(i), propertyImageFolder);
+                uploadedIdentifiers.add(fileInformation.get("fileIdentifier"));
+                images.get(i).setUrl(fileInformation.get("url"));
+                images.get(i).setFileIdentifier(fileInformation.get("fileIdentifier"));
+
+            }
+            return imageRepository.saveAll(images).stream().map(ImageMapper::entityToDTO).toList();
+
+        }catch (Exception e){
+            uploadedIdentifiers.forEach(fileIdentifier -> {
+                try {
+                    fileStorageService.deleteFile(fileIdentifier);
+                }
+                catch (Exception ignored){ log.warn("Failed to delete file during rollback. Identifier: {}",fileIdentifier);}
+            });
+            throw new FileStorageException("Error occurred on the saving of the files", e);
         }
-
-        return imageRepository.saveAll(images).stream().map(ImageMapper::entityToDTO).toList();
 
     }
 
