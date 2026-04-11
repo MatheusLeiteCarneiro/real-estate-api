@@ -7,4 +7,6 @@ import java.util.Map;
 public interface FileStorageService {
 
     Map<String , String> uploadFile(MultipartFile file, String folderName);
+
+    void deleteFile(String fileIdentifier);
 }

@@ -39,8 +39,17 @@ public class CloudinaryFileStorageService implements FileStorageService{
             fileInformation.put("fileIdentifier", publicId);
             return fileInformation;
         }
-        catch (IOException e){
+        catch (Exception e){
             throw new FileStorageException("An error occurred on the file upload", e);
+        }
+    }
+
+    @Override
+    public void deleteFile(String fileIdentifier) {
+        try {
+            cloudinary.uploader().destroy(fileIdentifier, Map.of());
+        } catch (Exception e) {
+            throw new FileStorageException("An error occurred on the deletion of the file", e);
         }
     }
 }
