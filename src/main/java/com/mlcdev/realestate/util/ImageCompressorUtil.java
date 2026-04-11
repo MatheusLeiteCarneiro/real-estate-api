@@ -11,7 +11,7 @@ public class ImageCompressorUtil {
     public static byte[] compressImage(MultipartFile image) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            Thumbnails.of(image.getInputStream()).size(1920, 1080).outputQuality(0.85).outputFormat("jpg").toOutputStream(outputStream);
+            Thumbnails.of(image.getInputStream()).size(1920, 1080).outputQuality(0.70).outputFormat("jpg").toOutputStream(outputStream);
             return outputStream.toByteArray();
         }
         catch (Exception e){
