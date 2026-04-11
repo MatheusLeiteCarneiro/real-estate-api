@@ -3,6 +3,7 @@ package com.mlcdev.realestate.service;
 import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
+import com.mlcdev.realestate.exception.EmptyResourceException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
@@ -41,10 +42,15 @@ public class ImageService {
 
     @Transactional
     public List<ImageDTO> saveImages(UUID propertyId, List<MultipartFile> files){
+
+        if(files.isEmpty()){
+            throw new EmptyResourceException("The file list is empty");
+        }
+
         Property property = propertyRepository.findById(propertyId).orElseThrow(() -> new NotFoundException("Property with ID: " + propertyId + " not found"));
         boolean noPrimary = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).isEmpty();
 
-        List<Image> images = files.stream().map(file -> Image.builder().isPrimary(false).property(property).build()).collect(Collectors.toCollection(ArrayList::new));
+        List<Image> images = files.stream().map(_ -> Image.builder().isPrimary(false).property(property).build()).collect(Collectors.toCollection(ArrayList::new));
 
         if (noPrimary){
             images.getFirst().setPrimary(true);
