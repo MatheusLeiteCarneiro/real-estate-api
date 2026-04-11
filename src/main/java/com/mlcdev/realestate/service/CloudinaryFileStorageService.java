@@ -24,6 +24,11 @@ public class CloudinaryFileStorageService implements FileStorageService{
         try {
             Map<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
+            options.put("quality", 70);
+            options.put("format", "jpg");
+            options.put("width", 1920);
+            options.put("height", 1080);
+            options.put("crop", "limit");
             log.info("Starting upload of the file into the folder: {}",folderName);
 
             @SuppressWarnings("unchecked")
