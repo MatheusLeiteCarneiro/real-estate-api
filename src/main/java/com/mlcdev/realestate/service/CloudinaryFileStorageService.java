@@ -5,7 +5,6 @@ import com.mlcdev.realestate.exception.FileStorageException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class CloudinaryFileStorageService implements FileStorageService{
 
 
     @Override
-    public Map<String, String> uploadFile(InputStream file, String folderName) {
+    public Map<String, String> uploadFile(byte[] file, String folderName) {
         try {
             Map<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
