@@ -4,9 +4,8 @@ import com.cloudinary.Cloudinary;
 import com.mlcdev.realestate.exception.FileStorageException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,14 +21,14 @@ public class CloudinaryFileStorageService implements FileStorageService{
 
 
     @Override
-    public Map<String, String> uploadFile(MultipartFile file, String folderName) {
+    public Map<String, String> uploadFile(InputStream file, String folderName) {
         try {
             Map<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
             log.info("Starting upload of the file into the folder: {}",folderName);
 
             @SuppressWarnings("unchecked")
-            Map<String, Object> uploadedFile = cloudinary.uploader().upload(file.getInputStream(), options);
+            Map<String, Object> uploadedFile = cloudinary.uploader().upload(file, options);
 
             log.info("File successfully uploaded");
             String publicId = (String) uploadedFile.get("public_id");

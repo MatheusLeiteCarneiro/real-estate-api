@@ -9,6 +9,7 @@ import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
 import com.mlcdev.realestate.repository.PropertyRepository;
+import com.mlcdev.realestate.util.ImageCompressorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +63,7 @@ public class ImageService {
         try{
 
             for (int i = 0; i < files.size(); i++) {
-                Map<String, String> fileInformation = fileStorageService.uploadFile(files.get(i), propertyImageFolder);
+                Map<String, String> fileInformation = fileStorageService.uploadFile(ImageCompressorUtil.compressImage(files.get(i)), propertyImageFolder);
                 uploadedIdentifiers.add(fileInformation.get("fileIdentifier"));
                 images.get(i).setUrl(fileInformation.get("url"));
                 images.get(i).setFileIdentifier(fileInformation.get("fileIdentifier"));
