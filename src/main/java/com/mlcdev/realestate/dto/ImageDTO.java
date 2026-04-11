@@ -12,6 +12,8 @@ public class ImageDTO {
      
     private UUID id;
 
+    private String fileIdentifier;
+
     private String url;
 
     private Boolean isPrimary;

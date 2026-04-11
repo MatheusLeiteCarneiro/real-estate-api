@@ -22,6 +22,9 @@ public class Image {
     @Column(name = "url")
     private String url;
 
+    @Column(name = "file_identifier")
+    private String fileIdentifier;
+
     @Column(name = "is_primary")
     private boolean isPrimary;
 

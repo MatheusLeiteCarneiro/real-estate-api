@@ -22,9 +22,9 @@ public class CloudinaryFileStorageService implements FileStorageService{
 
 
     @Override
-    public String uploadFile(MultipartFile file, String folderName) {
+    public Map<String, String> uploadFile(MultipartFile file, String folderName) {
         try {
-            HashMap<Object, Object> options = new HashMap<>();
+            Map<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
             log.info("Starting upload of the file into the folder: {}",folderName);
 
@@ -33,7 +33,11 @@ public class CloudinaryFileStorageService implements FileStorageService{
 
             log.info("File successfully uploaded");
             String publicId = (String) uploadedFile.get("public_id");
-            return cloudinary.url().secure(true).generate(publicId);
+            String url = cloudinary.url().secure(true).generate(publicId);
+            Map<String, String> fileInformation = new HashMap<>();
+            fileInformation.put("url" , url);
+            fileInformation.put("fileIdentifier", publicId);
+            return fileInformation;
         }
         catch (IOException e){
             throw new FileStorageException("An error occurred on the file upload", e);
