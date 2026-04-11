@@ -29,7 +29,7 @@ public class CloudinaryFileStorageService implements FileStorageService{
             log.info("Starting upload of the file into the folder: {}",folderName);
 
             @SuppressWarnings("unchecked")
-            Map<String, Object> uploadedFile = cloudinary.uploader().upload(file.getBytes(), options);
+            Map<String, Object> uploadedFile = cloudinary.uploader().upload(file.getInputStream(), options);
 
             log.info("File successfully uploaded");
             String publicId = (String) uploadedFile.get("public_id");
