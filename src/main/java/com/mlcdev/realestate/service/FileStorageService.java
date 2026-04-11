@@ -1,8 +1,11 @@
 package com.mlcdev.realestate.service;
 
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 public interface FileStorageService {
 
-    String uploadFile(MultipartFile file, String folderName);
+    Map<String , String> uploadFile(byte[] file, String folderName);
+
+    void deleteFile(String fileIdentifier);
 }
