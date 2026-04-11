@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -54,8 +51,9 @@ public class ImageService {
         }
 
         for(int i = 0; i < files.size(); i++){
-            String url = fileStorageService.uploadFile(files.get(i), propertyImageFolder);
-            images.get(i).setUrl(url);
+            Map<String, String> fileInformation = fileStorageService.uploadFile(files.get(i), propertyImageFolder);
+            images.get(i).setUrl(fileInformation.get("url"));
+            images.get(i).setFileIdentifier(fileInformation.get("fileIdentifier"));
         }
 
         return imageRepository.saveAll(images).stream().map(ImageMapper::entityToDTO).toList();
