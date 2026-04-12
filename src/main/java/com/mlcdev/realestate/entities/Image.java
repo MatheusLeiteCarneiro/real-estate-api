@@ -28,7 +28,7 @@ public class Image {
     @Column(name = "is_primary")
     private boolean isPrimary;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id")
     private Property property;
 }
