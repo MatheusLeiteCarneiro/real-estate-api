@@ -3,6 +3,7 @@ package com.mlcdev.realestate.service;
 import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
+import com.mlcdev.realestate.exception.ResourceMismatchException;
 import com.mlcdev.realestate.exception.EmptyResourceException;
 import com.mlcdev.realestate.exception.FileStorageException;
 import com.mlcdev.realestate.exception.NotFoundException;
@@ -80,6 +81,14 @@ public class ImageService {
             throw new FileStorageException("Error occurred on the saving of the files", e);
         }
 
+    }
+
+    @Transactional
+    public void deleteImage(UUID propertyId, UUID imageId){
+       if(!imageRepository.existsByIdAndPropertyId(imageId, propertyId)){
+           throw new ResourceMismatchException("Image with ID: " + imageId + " not found" + " or it's not from the property with id: " + propertyId);
+       }
+       imageRepository.delete(imageRepository.getReferenceById(imageId));
     }
 
 }
