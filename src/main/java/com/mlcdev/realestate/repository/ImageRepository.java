@@ -13,5 +13,4 @@ public interface ImageRepository extends JpaRepository<Image, UUID> {
 
     Optional<Image> findByPropertyIdAndIsPrimaryTrue(UUID propertyId);
 
-    boolean existsByIdAndPropertyId(UUID imageId, UUID propertyId);
 }
