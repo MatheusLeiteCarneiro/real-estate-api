@@ -85,10 +85,7 @@ public class ImageService {
 
     @Transactional
     public void deleteImage(UUID propertyId, UUID imageId){
-        Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
-       if(!image.getProperty().getId().equals(propertyId)){
-           throw new ResourceMismatchException("Image with ID: " + imageId + " it's not from the property with id: " + propertyId);
-       }
+        Image image = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
 
        String fileIdentifier = image.getFileIdentifier();
        imageRepository.delete(image);
@@ -111,6 +108,16 @@ public class ImageService {
     }
 
 
+    @Transactional
+    public ImageDTO updateImageAsPrimary(UUID propertyId, UUID imageId){
+        Image newPrimaryImage = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
+        if(newPrimaryImage.isPrimary()){return ImageMapper.entityToDTO(newPrimaryImage); }
+        imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).ifPresent(old -> old.setPrimary(false));
+        newPrimaryImage.setPrimary(true);
+        return ImageMapper.entityToDTO(newPrimaryImage);
+    }
+
+    //don't have transaction because it's used on the transaction of the property deletion
     public void deleteAllImagesForProperty(UUID propertyId){
         List<String> imagesFileIdentifiers = imageRepository.findAllByPropertyId(propertyId).stream().map(Image::getFileIdentifier).toList();
         imagesFileIdentifiers.forEach(fileIdentifier -> {
@@ -119,6 +126,15 @@ public class ImageService {
             }
             catch (Exception ignored){ log.warn("Failed to delete file during deletion of all property files. Identifier: {}",fileIdentifier);}
         });
+    }
+
+
+    private Image findImageByIdAndVerifyIfRelatedToProperty(UUID propertyId, UUID imageId){
+        Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
+        if(!image.getProperty().getId().equals(propertyId)){
+            throw new ResourceMismatchException("Image with ID: " + imageId + " it's not from the property with id: " + propertyId);
+        }
+        return image;
     }
 
 }

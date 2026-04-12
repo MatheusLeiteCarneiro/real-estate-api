@@ -39,7 +39,14 @@ public class ImageController {
         return ResponseEntity.created(uri).body(imageDTOList);
     }
 
-    @DeleteMapping(value = "/{imageId}")
+    @PatchMapping(value = "/{imageId}/primary")
+    public ResponseEntity<ImageDTO> updatePrimaryImage(@PathVariable UUID propertyId, @PathVariable UUID imageId){
+       ImageDTO imageDTO = imageService.updateImageAsPrimary(propertyId, imageId);
+       return ResponseEntity.ok(imageDTO);
+    }
+
+
+        @DeleteMapping(value = "/{imageId}")
     public ResponseEntity<Void> deleteImage(@PathVariable UUID propertyId, @PathVariable UUID imageId){
         imageService.deleteImage(propertyId, imageId);
         return ResponseEntity.noContent().build();
