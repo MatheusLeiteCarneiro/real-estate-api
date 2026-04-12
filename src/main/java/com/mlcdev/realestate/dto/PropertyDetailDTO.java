@@ -6,9 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -35,7 +33,7 @@ public class PropertyDetailDTO {
     private AddressDTO address;
 
     @Builder.Default
-    private Set<ImageDTO> images = new HashSet<>();
+    private List<ImageDTO> images = new ArrayList<>();
 
     private Instant createdAt;
     private Instant updatedAt;

@@ -3,6 +3,7 @@ package com.mlcdev.realestate.service;
 import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
+import com.mlcdev.realestate.exception.ResourceMismatchException;
 import com.mlcdev.realestate.exception.EmptyResourceException;
 import com.mlcdev.realestate.exception.FileStorageException;
 import com.mlcdev.realestate.exception.NotFoundException;
@@ -39,7 +40,7 @@ public class ImageService {
 
     @Transactional(readOnly = true)
     public ImageDTO findPrimaryImage(UUID propertyId){
-        Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Image not found"));
+        Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Primary Image not found for property with Id: " + propertyId));
         return ImageMapper.entityToDTO(primaryImage);
     }
 
@@ -80,6 +81,44 @@ public class ImageService {
             throw new FileStorageException("Error occurred on the saving of the files", e);
         }
 
+    }
+
+    @Transactional
+    public void deleteImage(UUID propertyId, UUID imageId){
+        Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
+       if(!image.getProperty().getId().equals(propertyId)){
+           throw new ResourceMismatchException("Image with ID: " + imageId + " it's not from the property with id: " + propertyId);
+       }
+
+       String fileIdentifier = image.getFileIdentifier();
+       imageRepository.delete(image);
+
+       if(image.isPrimary()){
+           List<Image> propertyImages = imageRepository.findAllByPropertyIdAndIsPrimaryFalse(propertyId);
+
+           if(!propertyImages.isEmpty()){
+            Image newPrimaryImage = propertyImages.getFirst();
+            newPrimaryImage.setPrimary(true);
+           }
+
+       }
+
+        try {
+            fileStorageService.deleteFile(fileIdentifier);
+        }
+        catch (Exception e){
+            log.warn("Failed to delete file during deletion. Identifier: {}",fileIdentifier);}
+    }
+
+
+    public void deleteAllImagesForProperty(UUID propertyId){
+        List<String> imagesFileIdentifiers = imageRepository.findAllByPropertyId(propertyId).stream().map(Image::getFileIdentifier).toList();
+        imagesFileIdentifiers.forEach(fileIdentifier -> {
+            try {
+                fileStorageService.deleteFile(fileIdentifier);
+            }
+            catch (Exception ignored){ log.warn("Failed to delete file during deletion of all property files. Identifier: {}",fileIdentifier);}
+        });
     }
 
 }

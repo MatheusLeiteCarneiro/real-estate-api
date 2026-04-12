@@ -12,4 +12,7 @@ public interface ImageRepository extends JpaRepository<Image, UUID> {
     List<Image> findAllByPropertyId(UUID propertyId);
 
     Optional<Image> findByPropertyIdAndIsPrimaryTrue(UUID propertyId);
+
+    List<Image> findAllByPropertyIdAndIsPrimaryFalse(UUID propertyId);
+
 }
