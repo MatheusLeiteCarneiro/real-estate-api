@@ -110,4 +110,15 @@ public class ImageService {
             log.warn("Failed to delete file during deletion. Identifier: {}",fileIdentifier);}
     }
 
+
+    public void deleteAllImagesForProperty(UUID propertyId){
+        List<String> imagesFileIdentifiers = imageRepository.findAllByPropertyId(propertyId).stream().map(Image::getFileIdentifier).toList();
+        imagesFileIdentifiers.forEach(fileIdentifier -> {
+            try {
+                fileStorageService.deleteFile(fileIdentifier);
+            }
+            catch (Exception ignored){ log.warn("Failed to delete file during deletion of all property files. Identifier: {}",fileIdentifier);}
+        });
+    }
+
 }

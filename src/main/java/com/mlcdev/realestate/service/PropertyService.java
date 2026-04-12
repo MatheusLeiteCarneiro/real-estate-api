@@ -21,6 +21,7 @@ import java.util.UUID;
 public class PropertyService {
 
     private final PropertyRepository propertyRepository;
+    private final ImageService imageService;
 
     @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findAll(Pageable pageable){
@@ -50,6 +51,7 @@ public class PropertyService {
     @Transactional
     public void delete(UUID id) {
         Property entity = propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
+        imageService.deleteAllImagesForProperty(id);
         propertyRepository.delete(entity);
     }
 }
