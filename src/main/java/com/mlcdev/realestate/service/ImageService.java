@@ -40,7 +40,7 @@ public class ImageService {
 
     @Transactional(readOnly = true)
     public ImageDTO findPrimaryImage(UUID propertyId){
-        Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Image not found"));
+        Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Primary Image not found for property with Id: " + propertyId));
         return ImageMapper.entityToDTO(primaryImage);
     }
 
@@ -85,10 +85,29 @@ public class ImageService {
 
     @Transactional
     public void deleteImage(UUID propertyId, UUID imageId){
-       if(!imageRepository.existsByIdAndPropertyId(imageId, propertyId)){
-           throw new ResourceMismatchException("Image with ID: " + imageId + " not found" + " or it's not from the property with id: " + propertyId);
+        Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
+       if(!image.getProperty().getId().equals(propertyId)){
+           throw new ResourceMismatchException("Image with ID: " + imageId + " it's not from the property with id: " + propertyId);
        }
-       imageRepository.delete(imageRepository.getReferenceById(imageId));
+
+       String fileIdentifier = image.getFileIdentifier();
+       imageRepository.delete(image);
+
+       if(image.isPrimary()){
+           List<Image> propertyImages = imageRepository.findAllByPropertyIdAndIsPrimaryFalse(propertyId);
+
+           if(!propertyImages.isEmpty()){
+            Image newPrimaryImage = propertyImages.getFirst();
+            newPrimaryImage.setPrimary(true);
+           }
+
+       }
+
+        try {
+            fileStorageService.deleteFile(fileIdentifier);
+        }
+        catch (Exception e){
+            log.warn("Failed to delete file during deletion. Identifier: {}",fileIdentifier);}
     }
 
 }
