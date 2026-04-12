@@ -112,7 +112,11 @@ public class ImageService {
     public ImageDTO updateImageAsPrimary(UUID propertyId, UUID imageId){
         Image newPrimaryImage = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
         if(newPrimaryImage.isPrimary()){return ImageMapper.entityToDTO(newPrimaryImage); }
-        imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).ifPresent(old -> old.setPrimary(false));
+        imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).ifPresent(old ->
+        {
+            old.setPrimary(false);
+            imageRepository.saveAndFlush(old);
+        });
         newPrimaryImage.setPrimary(true);
         return ImageMapper.entityToDTO(newPrimaryImage);
     }
