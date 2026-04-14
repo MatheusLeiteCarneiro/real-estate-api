@@ -1,9 +1,11 @@
 package com.mlcdev.realestate.entities;
 
+import com.mlcdev.realestate.dto.LoginRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
 
@@ -34,6 +36,10 @@ public class User implements UserDetails {
     @Column(name = "authority")
     @Builder.Default
     private Set<Role> authorities = new HashSet<>();
+
+    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder){
+        return passwordEncoder.matches(loginRequest.password(), this.password);
+    }
 
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
