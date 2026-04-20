@@ -35,12 +35,12 @@ public class AdminUserConfig implements CommandLineRunner {
         Optional<User> adminOptional = userRepository.findByUsername(adminUsername);
 
         adminOptional.ifPresentOrElse(
-                x -> log.info("admin user already exist"),
+                _ -> log.info("admin user already exist, skipping seed"),
                 () -> {
                     User adminUser = User.builder()
                             .username(adminUsername)
                             .password(passwordEncoder.encode(adminPassword))
-                            .authorities(Set.of(Role.ROLE_ADMIN, Role.ROLE_BROKER))
+                            .authorities(Set.of(Role.ROLE_ADMIN))
                             .build();
                     userRepository.save(adminUser);
                 }

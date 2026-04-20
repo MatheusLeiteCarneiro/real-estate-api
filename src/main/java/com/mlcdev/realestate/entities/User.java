@@ -1,25 +1,24 @@
 package com.mlcdev.realestate.entities;
 
-import com.mlcdev.realestate.dto.LoginRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.jspecify.annotations.NonNull;
+
 
 import java.util.*;
 
 
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 
+@Getter
 @Entity
 @Table(name = "tb_user")
 public class User implements UserDetails {
 
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -37,42 +36,17 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<Role> authorities = new HashSet<>();
 
-    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder){
-        return passwordEncoder.matches(loginRequest.password(), this.password);
+
+    public void changePassword(String encodedPassword){
+        this.password= encodedPassword;
+    }
+
+    public void addRole(Role role){
+        this.authorities.add(role);
     }
 
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public @NonNull String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }
