@@ -10,7 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 public class UserCreateDTO {
 
     @NotBlank(message = "Username can't be blank")
