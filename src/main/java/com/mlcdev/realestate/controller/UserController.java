@@ -2,6 +2,7 @@ package com.mlcdev.realestate.controller;
 
 import com.mlcdev.realestate.dto.UserCreateDTO;
 import com.mlcdev.realestate.dto.UserDTO;
+import com.mlcdev.realestate.dto.UserPatchDTO;
 import com.mlcdev.realestate.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,4 +46,18 @@ public class UserController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserDTO> update(@RequestBody @Valid UserPatchDTO patchDTO, @PathVariable UUID userId){
+        UserDTO dto = userService.update(patchDTO, userId);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{userId}/toggle-active")
+    public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId){
+        return ResponseEntity.ok(userService.toggleActive(userId));
+    }
+
 }
