@@ -15,6 +15,7 @@ public class UserMapper {
                 .id(entity.getId())
                 .username(entity.getUsername())
                 .authorities(entity.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()))
+                .active(entity.isActive())
                 .build();
     }
 }

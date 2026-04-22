@@ -19,4 +19,6 @@ public class UserDTO {
 
     @Builder.Default
     private Set<String> authorities = new HashSet<>();
+
+    private boolean active;
 }

@@ -36,6 +36,10 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<Role> authorities = new HashSet<>();
 
+    @Column(name = "active", nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
     public void changeUsername(String newUsername){
         this.username= newUsername;
     }
@@ -44,6 +48,8 @@ public class User implements UserDetails {
         this.password= encodedPassword;
     }
 
+    public void toggleActive(){this.active = !this.active;}
+
     public void addRole(Role role){
         this.authorities.add(role);
     }
@@ -51,5 +57,10 @@ public class User implements UserDetails {
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
     }
 }
