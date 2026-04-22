@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @Builder.Default
     private Set<Role> authorities = new HashSet<>();
 
+    public void changeUsername(String newUsername){
+        this.username= newUsername;
+    }
 
     public void changePassword(String encodedPassword){
         this.password= encodedPassword;
