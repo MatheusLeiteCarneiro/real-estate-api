@@ -7,7 +7,6 @@ import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
 
-import java.util.stream.Collectors;
 
 public class PropertyMapper {
 
@@ -28,7 +27,7 @@ public class PropertyMapper {
                 .area(entity.getArea())
                 .parkingSpots(entity.getParkingSpots())
                 .address(AddressMapper.entityToDTO(entity.getAddress()))
-                .images(entity.getImages().stream().map(ImageMapper::entityToDTO).collect(Collectors.toList()))
+                .images(entity.getImages().stream().map(ImageMapper::entityToDTO).toList())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

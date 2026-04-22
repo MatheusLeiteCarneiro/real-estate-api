@@ -32,18 +32,17 @@ public class AdminUserConfig implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String @NonNull ... args) {
-        Optional<User> adminOptional = userRepository.findByUsername(adminUsername);
+        if(userRepository.existsByUsername(adminUsername)){
+            log.info("admin user already exist, skipping seed");
+        }
+        else {
+            User adminUser = User.builder()
+                    .username(adminUsername)
+                    .password(passwordEncoder.encode(adminPassword))
+                    .build();
+            adminUser.addRole(Role.ROLE_ADMIN);
+            userRepository.save(adminUser);
+        }
 
-        adminOptional.ifPresentOrElse(
-                _ -> log.info("admin user already exist, skipping seed"),
-                () -> {
-                    User adminUser = User.builder()
-                            .username(adminUsername)
-                            .password(passwordEncoder.encode(adminPassword))
-                            .authorities(Set.of(Role.ROLE_ADMIN))
-                            .build();
-                    userRepository.save(adminUser);
-                }
-        );
     }
 }
