@@ -5,6 +5,7 @@ import com.mlcdev.realestate.dto.UserDTO;
 import com.mlcdev.realestate.dto.UserPatchDTO;
 import com.mlcdev.realestate.entities.Role;
 import com.mlcdev.realestate.entities.User;
+import com.mlcdev.realestate.exception.BusinessRuleException;
 import com.mlcdev.realestate.exception.ConflictException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.UserMapper;
@@ -67,8 +68,11 @@ public class UserService {
     @Transactional
     public UserDTO toggleActive(UUID userId){
         User user = findUserById(userId);
+        if(user.getAuthorities().contains(Role.ROLE_ADMIN)){
+            throw new BusinessRuleException("Admin user cannot be deactivated");
+        }
         user.toggleActive();
-        return UserMapper.entityToDTO(user);
+        return UserMapper.entityToDTO(userRepository.save(user));
 
     }
 
