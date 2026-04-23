@@ -9,6 +9,7 @@ import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
 import com.mlcdev.realestate.repository.PropertyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PropertyService {
@@ -25,34 +27,46 @@ public class PropertyService {
 
     @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findAll(Pageable pageable){
+        log.debug("Retrieving properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Property> properties = propertyRepository.findAll(pageable);
         return properties.map(PropertyMapper::entityToSummaryDTO);
     }
 
     @Transactional(readOnly = true)
     public PropertyDetailDTO findById(UUID id){
-        return PropertyMapper.entityToDetailDTO(propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found")));
+        log.debug("Retrieving property with ID: {}", id);
+        return PropertyMapper.entityToDetailDTO(propertyByIdOrElseThrow(id));
     }
 
     @Transactional
     public PropertyDetailDTO create(PropertyCreateDTO createDTO){
-        Property property = PropertyMapper.createDTOToEntity(createDTO);
-        return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(property));
-
+        log.info("Creating property with title: {}", createDTO.getTitle());
+        Property savedProperty = propertyRepository.saveAndFlush(PropertyMapper.createDTOToEntity(createDTO));
+        log.info("Property successfully created with ID: {}", savedProperty.getId());
+        return PropertyMapper.entityToDetailDTO(savedProperty);
     }
 
     @Transactional
     public PropertyDetailDTO update(UUID id, PropertyPatchDTO dto){
-        Property entity = propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
-        Property updatedEntity = PropertyMapper.applyPatchDTOToEntity(dto, entity);
-        return PropertyMapper.entityToDetailDTO(propertyRepository.saveAndFlush(updatedEntity));
+        log.info("Patching property with id: {}", id);
+        Property property = propertyByIdOrElseThrow(id);
+        Property updatedProperty = propertyRepository.saveAndFlush(PropertyMapper.applyPatchDTOToEntity(dto, property));
+        log.info("Property with ID: {} successfully patched", id);
+        return PropertyMapper.entityToDetailDTO(updatedProperty);
     }
 
     @Transactional
     public void delete(UUID id) {
-        Property entity = propertyRepository.findById(id).orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
+        log.info("Deleting property with id: {}", id);
+        Property property = propertyByIdOrElseThrow(id);
         imageService.deleteAllImagesForProperty(id);
-        propertyRepository.delete(entity);
+        propertyRepository.delete(property);
+        log.info("Property with ID: {} successfully deleted", id);
+    }
+
+    private Property propertyByIdOrElseThrow(UUID id){
+        return propertyRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }
 }
 
