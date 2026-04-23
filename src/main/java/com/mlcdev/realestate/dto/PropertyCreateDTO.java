@@ -1,6 +1,7 @@
 package com.mlcdev.realestate.dto;
 
 import com.mlcdev.realestate.entities.PropertyType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -45,6 +46,7 @@ public class PropertyCreateDTO {
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer parkingSpots;
 
+    @Valid
     @NotNull(message = "This field should not be left null")
     private AddressDTO address;
 }
