@@ -6,6 +6,7 @@ import com.mlcdev.realestate.exception.response.ValidationApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -62,14 +63,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleAccess(AccessDeniedException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleAccess(HttpServletRequest request){
         HttpStatus status = HttpStatus.FORBIDDEN;
         ApiError error = new ApiError(status.value(), "Access Denied", request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiError> handleAuthorization(HttpServletRequest request){
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        ApiError error = new ApiError(status.value(), "Insufficient Permission", request.getRequestURI());
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleUnexpected(HttpServletRequest request){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiError error = new ApiError(status.value(), "An unexpected error occurred", request.getRequestURI());
         return ResponseEntity.status(status).body(error);
