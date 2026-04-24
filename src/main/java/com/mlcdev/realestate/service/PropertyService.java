@@ -8,6 +8,8 @@ import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
 import com.mlcdev.realestate.repository.PropertyRepository;
+import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.OwnershipValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ public class PropertyService {
 
     private final PropertyRepository propertyRepository;
     private final ImageService imageService;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findAll(Pageable pageable){
@@ -39,35 +42,55 @@ public class PropertyService {
     }
 
     @Transactional
-    public PropertyDetailDTO create(PropertyCreateDTO createDTO){
+    public PropertyDetailDTO create(PropertyCreateDTO createDTO, UUID brokerId){
         log.info("Creating property with title: {}", createDTO.getTitle());
-        Property savedProperty = propertyRepository.saveAndFlush(PropertyMapper.createDTOToEntity(createDTO));
+        Property property = PropertyMapper.createDTOToEntity(createDTO);
+        property.setBroker(userRepository.getReferenceById(brokerId));
+        Property savedProperty = propertyRepository.saveAndFlush(property);
         log.info("Property successfully created with ID: {}", savedProperty.getId());
         return PropertyMapper.entityToDetailDTO(savedProperty);
     }
 
     @Transactional
-    public PropertyDetailDTO update(UUID id, PropertyPatchDTO dto){
-        log.info("Patching property with id: {}", id);
-        Property property = propertyByIdOrElseThrow(id);
+    public PropertyDetailDTO update(UUID propertyId, PropertyPatchDTO dto, UUID brokerId, boolean isAdmin){
+        log.info("Patching property with id: {}", propertyId);
+        Property property = propertyByIdOrElseThrow(propertyId);
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
         Property updatedProperty = propertyRepository.saveAndFlush(PropertyMapper.applyPatchDTOToEntity(dto, property));
-        log.info("Property with ID: {} successfully patched", id);
+        log.info("Property with ID: {} successfully patched", propertyId);
         return PropertyMapper.entityToDetailDTO(updatedProperty);
     }
 
+    @Transactional(readOnly = true)
+    public Page<PropertySummaryDTO> findBrokerProperties(Pageable pageable, UUID brokerId) {
+        log.debug("Retrieving properties from the broker with id: {}", brokerId);
+        if(!userRepository.existsById(brokerId)){
+            log.warn("Broker with ID {} doesn't exist", brokerId);
+            throw new NotFoundException("Broker with Id: " + brokerId + " doesn't exist");
+        }
+        Page<Property> brokerProperties = propertyRepository.findPropertiesByBroker(userRepository.getReferenceById(brokerId), pageable);
+        log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getSize(), brokerId);
+        return brokerProperties.map(PropertyMapper::entityToSummaryDTO);
+    }
+
     @Transactional
-    public void delete(UUID id) {
-        log.info("Deleting property with id: {}", id);
-        Property property = propertyByIdOrElseThrow(id);
-        imageService.deleteAllImagesForProperty(id);
+    public void delete(UUID propertyId, UUID brokerId, boolean isAdmin) {
+        log.info("Deleting property with id: {}", propertyId);
+        Property property = propertyByIdOrElseThrow(propertyId);
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
+        imageService.deleteAllImagesForProperty(propertyId);
         propertyRepository.delete(property);
-        log.info("Property with ID: {} successfully deleted", id);
+        log.info("Property with ID: {} successfully deleted", propertyId);
     }
 
     private Property propertyByIdOrElseThrow(UUID id){
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }
+
+
+
+
 }
 
 

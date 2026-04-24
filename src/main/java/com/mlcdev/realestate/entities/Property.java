@@ -47,6 +47,10 @@ public class Property {
     private List<Image> images = new ArrayList<>();
 
 
+    @ManyToOne
+    @JoinColumn(name = "broker_id", nullable = false)
+    private User broker;
+
     @CreationTimestamp
     @Column(updatable = false)
     private Instant createdAt;

@@ -10,6 +10,7 @@ import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
 import com.mlcdev.realestate.repository.PropertyRepository;
+import com.mlcdev.realestate.security.OwnershipValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +48,7 @@ public class ImageService {
     }
 
     @Transactional
-    public List<ImageDTO> saveImages(UUID propertyId, List<MultipartFile> files){
-
+    public List<ImageDTO> saveImages(UUID propertyId, List<MultipartFile> files, UUID brokerId, boolean isAdmin){
 
         if(files.isEmpty()){
             log.warn("Can't save with a empty file list");
@@ -59,6 +59,7 @@ public class ImageService {
 
 
         Property property = propertyRepository.findById(propertyId).orElseThrow(() -> new NotFoundException("Property with ID: " + propertyId + " not found"));
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
         boolean noPrimary = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).isEmpty();
 
         List<Image> images = files.stream().map(_ -> Image.builder().isPrimary(false).property(property).build()).collect(Collectors.toCollection(ArrayList::new));
@@ -96,10 +97,10 @@ public class ImageService {
     }
 
     @Transactional
-    public void deleteImage(UUID propertyId, UUID imageId){
+    public void deleteImage(UUID propertyId, UUID imageId, UUID brokerId, boolean isAdmin){
         log.info("Deleting image with ID: {} from the property with ID: {}", imageId, propertyId);
         Image image = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
-
+        OwnershipValidator.propertyVerifyBrokerPermission(image.getProperty(), brokerId, isAdmin);
        String fileIdentifier = image.getFileIdentifier();
        imageRepository.delete(image);
 
@@ -126,9 +127,9 @@ public class ImageService {
 
 
     @Transactional
-    public ImageDTO updateImageAsPrimary(UUID propertyId, UUID imageId){
+    public ImageDTO updateImageAsPrimary(UUID propertyId, UUID imageId, UUID brokerId, boolean isAdmin){
         Image newPrimaryImage = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
-
+        OwnershipValidator.propertyVerifyBrokerPermission(newPrimaryImage.getProperty(), brokerId, isAdmin);
         if(newPrimaryImage.isPrimary()){
             log.info("The image with ID: {} is already primary", imageId);
             return ImageMapper.entityToDTO(newPrimaryImage); }

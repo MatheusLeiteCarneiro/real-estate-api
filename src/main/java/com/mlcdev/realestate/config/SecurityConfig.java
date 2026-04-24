@@ -1,5 +1,6 @@
 package com.mlcdev.realestate.config;
 
+import com.mlcdev.realestate.entities.User;
 import com.mlcdev.realestate.repository.UserRepository;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -24,7 +25,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -142,17 +142,18 @@ public class SecurityConfig {
        return context -> {
            if(context.getTokenType().getValue().equals("access_token")){
                Authentication principal = context.getPrincipal();
-               if (!(principal.getPrincipal() instanceof UserDetails userDetails)) {
+               if (!(principal.getPrincipal() instanceof User user)) {
                    return;
                }
-               List<String> authorities = userDetails.getAuthorities()
+               List<String> authorities = user.getAuthorities()
                        .stream()
                        .map(GrantedAuthority::getAuthority)
                        .toList();
 
                context.getClaims()
+                       .subject(user.getId().toString())
                        .claim("authorities", authorities)
-                       .claim("username", userDetails.getUsername());
+                       .claim("username", user.getUsername());
            }
        };
     }
