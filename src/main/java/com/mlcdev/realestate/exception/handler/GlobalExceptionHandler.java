@@ -4,15 +4,17 @@ import com.mlcdev.realestate.exception.*;
 import com.mlcdev.realestate.exception.response.ApiError;
 import com.mlcdev.realestate.exception.response.ValidationApiError;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -50,6 +52,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ApiError> handleFileStorage(FileStorageException exception, HttpServletRequest request){
+        log.error("File storage error on {}: {}", request.getRequestURI(), exception.getMessage(), exception);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiError error = new ApiError(status.value(), exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(error);
@@ -77,7 +80,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleUnexpected(HttpServletRequest request){
+    public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request){
+        log.error("Unexpected error on {}: {}", request.getRequestURI(), exception.getMessage(), exception);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiError error = new ApiError(status.value(), "An unexpected error occurred", request.getRequestURI());
         return ResponseEntity.status(status).body(error);
