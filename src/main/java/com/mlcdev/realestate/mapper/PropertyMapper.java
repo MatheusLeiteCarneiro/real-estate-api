@@ -1,10 +1,6 @@
 package com.mlcdev.realestate.mapper;
 
-import com.mlcdev.realestate.dto.PropertyCreateDTO;
-import com.mlcdev.realestate.dto.PropertyDetailDTO;
-import com.mlcdev.realestate.dto.PropertyPatchDTO;
-import com.mlcdev.realestate.dto.PropertySummaryDTO;
-import com.mlcdev.realestate.entities.Image;
+import com.mlcdev.realestate.dto.*;
 import com.mlcdev.realestate.entities.Property;
 
 
@@ -35,7 +31,7 @@ public class PropertyMapper {
 
     }
 
-    public static PropertySummaryDTO entityToSummaryDTO(Property entity){
+    public static PropertySummaryDTO entityToSummaryDTO(Property entity, ImageDTO primaryImageDTO){
 
         return PropertySummaryDTO.builder()
                 .id(entity.getId())
@@ -50,7 +46,7 @@ public class PropertyMapper {
                 .parkingSpots(entity.getParkingSpots())
                 .city(entity.getAddress().getCity())
                 .state(entity.getAddress().getState())
-                .primaryImage(entity.getImages().stream().filter(Image::isPrimary).findFirst().map(ImageMapper::entityToDTO).orElse(null))
+                .primaryImage(primaryImageDTO)
                 .build();
 
 

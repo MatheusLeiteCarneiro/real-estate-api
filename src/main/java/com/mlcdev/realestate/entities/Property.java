@@ -47,7 +47,7 @@ public class Property {
     private List<Image> images = new ArrayList<>();
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "broker_id", nullable = false)
     private User broker;
 

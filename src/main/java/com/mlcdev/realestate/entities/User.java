@@ -2,6 +2,7 @@ package com.mlcdev.realestate.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.jspecify.annotations.NonNull;
@@ -34,6 +35,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "authority")
     @Builder.Default
+    @BatchSize(size = 50)
     private Set<Role> authorities = new HashSet<>();
 
     @Column(name = "active", nullable = false)
