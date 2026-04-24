@@ -5,11 +5,11 @@ import com.mlcdev.realestate.dto.PropertyDetailDTO;
 import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.entities.Property;
-import com.mlcdev.realestate.exception.BusinessRuleException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
 import com.mlcdev.realestate.repository.PropertyRepository;
 import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.OwnershipValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -55,7 +55,7 @@ public class PropertyService {
     public PropertyDetailDTO update(UUID propertyId, PropertyPatchDTO dto, UUID brokerId, boolean isAdmin){
         log.info("Patching property with id: {}", propertyId);
         Property property = propertyByIdOrElseThrow(propertyId);
-        validateUserAdminOrPropertyBroker(property, brokerId, isAdmin);
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
         Property updatedProperty = propertyRepository.saveAndFlush(PropertyMapper.applyPatchDTOToEntity(dto, property));
         log.info("Property with ID: {} successfully patched", propertyId);
         return PropertyMapper.entityToDetailDTO(updatedProperty);
@@ -77,7 +77,7 @@ public class PropertyService {
     public void delete(UUID propertyId, UUID brokerId, boolean isAdmin) {
         log.info("Deleting property with id: {}", propertyId);
         Property property = propertyByIdOrElseThrow(propertyId);
-        validateUserAdminOrPropertyBroker(property, brokerId, isAdmin);
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
         imageService.deleteAllImagesForProperty(propertyId);
         propertyRepository.delete(property);
         log.info("Property with ID: {} successfully deleted", propertyId);
@@ -88,12 +88,7 @@ public class PropertyService {
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }
 
-    private void validateUserAdminOrPropertyBroker(Property property, UUID brokerId, boolean isAdmin){
-        if(!isAdmin && !property.getBroker().getId().equals(brokerId)){
-            log.warn("User with ID: {} doesn't have the permission to modify the property with ID: {}", brokerId, property.getId());
-            throw new BusinessRuleException("User doesn't have the permission to modify the property");
-        }
-    }
+
 
 
 }

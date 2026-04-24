@@ -5,7 +5,7 @@ import com.mlcdev.realestate.dto.PropertyCreateDTO;
 import com.mlcdev.realestate.dto.PropertyDetailDTO;
 import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
-import com.mlcdev.realestate.entities.Role;
+import com.mlcdev.realestate.security.JwtUtils;
 import com.mlcdev.realestate.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class PropertyController {
     @PreAuthorize("hasRole('BROKER')")
     @PostMapping
     public ResponseEntity<PropertyDetailDTO> createProperty(@Valid @RequestBody PropertyCreateDTO dto, @AuthenticationPrincipal Jwt jwt){
-        PropertyDetailDTO createdDTO = propertyService.create(dto, getUserIdByJwt(jwt));
+        PropertyDetailDTO createdDTO = propertyService.create(dto, JwtUtils.getUserId(jwt));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdDTO.getId()).toUri();
         return ResponseEntity.created(uri).body(createdDTO);
     }
@@ -54,13 +54,13 @@ public class PropertyController {
     @PreAuthorize("hasRole('BROKER')")
     @PatchMapping(value = "/{id}")
     public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
-        PropertyDetailDTO responseDto = propertyService.update(id ,dto, getUserIdByJwt(jwt), isAdmin(jwt));
+        PropertyDetailDTO responseDto = propertyService.update(id ,dto, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.ok(responseDto);
     }
     @PreAuthorize("hasRole('BROKER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
-        propertyService.delete(id, getUserIdByJwt(jwt), isAdmin(jwt));
+        propertyService.delete(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.noContent().build();
     }
 
@@ -74,12 +74,6 @@ public class PropertyController {
         return ResponseEntity.ok(propertyPage);
     }
 
-    private boolean isAdmin(Jwt jwt){
-        List<String> authorities =  jwt.getClaimAsStringList("authorities");
-        return authorities != null && authorities.contains(Role.ROLE_ADMIN.name());
-    }
 
-    private UUID getUserIdByJwt(Jwt jwt){
-        return UUID.fromString(jwt.getSubject());
-    }
+
 }
