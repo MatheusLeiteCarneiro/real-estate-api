@@ -42,7 +42,9 @@ public class AdminUserConfig implements CommandLineRunner {
                     .build();
             adminUser.addRole(Role.ROLE_ADMIN);
             userRepository.save(adminUser);
+            log.info("Admin user successfully created");
         }
+
 
     }
 }
