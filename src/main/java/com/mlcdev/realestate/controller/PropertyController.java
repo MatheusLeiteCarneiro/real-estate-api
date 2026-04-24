@@ -65,6 +65,15 @@ public class PropertyController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(value = "/broker/{brokerId}")
+    public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(
+            @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @PathVariable UUID brokerId){
+        Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
+        return ResponseEntity.ok(propertyPage);
+    }
+
     private boolean isAdmin(Jwt jwt){
         List<String> authorities =  jwt.getClaimAsStringList("authorities");
         return authorities != null && authorities.contains(Role.ROLE_ADMIN.name());

@@ -61,6 +61,18 @@ public class PropertyService {
         return PropertyMapper.entityToDetailDTO(updatedProperty);
     }
 
+    @Transactional(readOnly = true)
+    public Page<PropertySummaryDTO> findBrokerProperties(Pageable pageable, UUID brokerId) {
+        log.debug("Retrieving properties from the broker with id: {}", brokerId);
+        if(!userRepository.existsById(brokerId)){
+            log.warn("Broker with ID {} doesn't exist", brokerId);
+            throw new NotFoundException("Broker with Id: " + brokerId + " doesn't exist");
+        }
+        Page<Property> brokerProperties = propertyRepository.findPropertiesByBroker(userRepository.getReferenceById(brokerId), pageable);
+        log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getSize(), brokerId);
+        return brokerProperties.map(PropertyMapper::entityToSummaryDTO);
+    }
+
     @Transactional
     public void delete(UUID propertyId, UUID brokerId, boolean isAdmin) {
         log.info("Deleting property with id: {}", propertyId);
@@ -82,6 +94,8 @@ public class PropertyService {
             throw new BusinessRuleException("User doesn't have the permission to modify the property");
         }
     }
+
+
 }
 
 
