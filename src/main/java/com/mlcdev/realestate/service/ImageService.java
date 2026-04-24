@@ -34,12 +34,14 @@ public class ImageService {
 
     @Transactional(readOnly = true)
     public List<ImageDTO> findAllImages(UUID propertyId){
+        log.debug("Retrieving all images from the property with ID: {}",propertyId);
         List<Image> imageList = imageRepository.findAllByPropertyId(propertyId);
         return imageList.stream().sorted(Comparator.comparing(Image::isPrimary).reversed()).map(ImageMapper::entityToDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public ImageDTO findPrimaryImage(UUID propertyId){
+        log.debug("Retrieving primary image from the property with ID: {}",propertyId);
         Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Primary Image not found for property with Id: " + propertyId));
         return ImageMapper.entityToDTO(primaryImage);
     }
@@ -47,9 +49,14 @@ public class ImageService {
     @Transactional
     public List<ImageDTO> saveImages(UUID propertyId, List<MultipartFile> files){
 
+
         if(files.isEmpty()){
+            log.warn("Can't save with a empty file list");
             throw new EmptyResourceException("The file list is empty");
         }
+
+        log.info("Saving {} images for the property with ID: {}",files.size(),propertyId);
+
 
         Property property = propertyRepository.findById(propertyId).orElseThrow(() -> new NotFoundException("Property with ID: " + propertyId + " not found"));
         boolean noPrimary = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).isEmpty();
@@ -69,14 +76,19 @@ public class ImageService {
                 images.get(i).setFileIdentifier(fileInformation.get("fileIdentifier"));
 
             }
-            return imageRepository.saveAll(images).stream().map(ImageMapper::entityToDTO).toList();
+
+            List<Image> savedImages = imageRepository.saveAll(images);
+
+            log.info("Successfully saved {} images for the property with ID: {}", savedImages.size(), propertyId);
+
+            return savedImages.stream().map(ImageMapper::entityToDTO).toList();
 
         }catch (Exception e){
             uploadedIdentifiers.forEach(fileIdentifier -> {
                 try {
                     fileStorageService.deleteFile(fileIdentifier);
                 }
-                catch (Exception ignored){ log.warn("Failed to delete file during rollback. Identifier: {}",fileIdentifier);}
+                catch (Exception _){ log.warn("Failed to delete file during rollback. Identifier: {}",fileIdentifier);}
             });
             throw new FileStorageException("Error occurred on the saving of the files", e);
         }
@@ -85,17 +97,22 @@ public class ImageService {
 
     @Transactional
     public void deleteImage(UUID propertyId, UUID imageId){
+        log.info("Deleting image with ID: {} from the property with ID: {}", imageId, propertyId);
         Image image = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
 
        String fileIdentifier = image.getFileIdentifier();
        imageRepository.delete(image);
 
-       if(image.isPrimary()){
-           List<Image> propertyImages = imageRepository.findAllByPropertyIdAndIsPrimaryFalse(propertyId);
+       log.info("Image with ID: {} successfully deleted", imageId);
 
+
+       if(image.isPrimary()){
+           log.info("The image with ID: {} was a primary image", imageId);
+           List<Image> propertyImages = imageRepository.findAllByPropertyIdAndIsPrimaryFalse(propertyId);
            if(!propertyImages.isEmpty()){
             Image newPrimaryImage = propertyImages.getFirst();
             newPrimaryImage.setPrimary(true);
+            log.info("Primary image flag was set to the image with ID: {}", newPrimaryImage.getId());
            }
 
        }
@@ -103,7 +120,7 @@ public class ImageService {
         try {
             fileStorageService.deleteFile(fileIdentifier);
         }
-        catch (Exception e){
+        catch (Exception _){
             log.warn("Failed to delete file during deletion. Identifier: {}",fileIdentifier);}
     }
 
@@ -111,33 +128,44 @@ public class ImageService {
     @Transactional
     public ImageDTO updateImageAsPrimary(UUID propertyId, UUID imageId){
         Image newPrimaryImage = findImageByIdAndVerifyIfRelatedToProperty(propertyId, imageId);
-        if(newPrimaryImage.isPrimary()){return ImageMapper.entityToDTO(newPrimaryImage); }
+
+        if(newPrimaryImage.isPrimary()){
+            log.info("The image with ID: {} is already primary", imageId);
+            return ImageMapper.entityToDTO(newPrimaryImage); }
+
+        log.info("Setting image with ID: {} as primary", imageId);
         imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).ifPresent(old ->
         {
             old.setPrimary(false);
             imageRepository.saveAndFlush(old);
         });
         newPrimaryImage.setPrimary(true);
+        imageRepository.save(newPrimaryImage);
+        log.info("Image with ID: {} successfully set as primary", imageId);
         return ImageMapper.entityToDTO(newPrimaryImage);
     }
 
-    //don't have transaction because it's used on the transaction of the property deletion
     public void deleteAllImagesForProperty(UUID propertyId){
+        log.info("Deleting all images for the property with ID: {}", propertyId);
         List<String> imagesFileIdentifiers = imageRepository.findAllByPropertyId(propertyId).stream().map(Image::getFileIdentifier).toList();
         imagesFileIdentifiers.forEach(fileIdentifier -> {
             try {
                 fileStorageService.deleteFile(fileIdentifier);
             }
-            catch (Exception ignored){ log.warn("Failed to delete file during deletion of all property files. Identifier: {}",fileIdentifier);}
+            catch (Exception _){ log.warn("Failed to delete file during deletion of all property files. Identifier: {}",fileIdentifier);}
         });
+        log.info("All images for the property with ID: {} successfully deleted", propertyId);
     }
 
 
     private Image findImageByIdAndVerifyIfRelatedToProperty(UUID propertyId, UUID imageId){
         Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
+        log.debug("Checking if the image with ID : {} is related to the property with ID: {}", imageId, propertyId);
         if(!image.getProperty().getId().equals(propertyId)){
+            log.warn("The image with ID: {} is not related to the property with ID: {}", imageId, propertyId);
             throw new ResourceMismatchException("Image with ID: " + imageId + " it's not from the property with id: " + propertyId);
         }
+        log.debug("The property and the image are related");
         return image;
     }
 
