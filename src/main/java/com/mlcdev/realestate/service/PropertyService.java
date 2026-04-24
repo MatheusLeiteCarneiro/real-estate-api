@@ -1,9 +1,6 @@
 package com.mlcdev.realestate.service;
 
-import com.mlcdev.realestate.dto.PropertyCreateDTO;
-import com.mlcdev.realestate.dto.PropertyDetailDTO;
-import com.mlcdev.realestate.dto.PropertyPatchDTO;
-import com.mlcdev.realestate.dto.PropertySummaryDTO;
+import com.mlcdev.realestate.dto.*;
 import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.PropertyMapper;
@@ -17,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -32,7 +31,9 @@ public class PropertyService {
     public Page<PropertySummaryDTO> findAll(Pageable pageable){
         log.debug("Retrieving properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Property> properties = propertyRepository.findAll(pageable);
-        return properties.map(PropertyMapper::entityToSummaryDTO);
+        List<UUID> propertiesId = properties.map(Property::getId).toList();
+        Map<UUID, ImageDTO> primaryImages = imageService.findPrimaryImagesForProperties(propertiesId);
+        return properties.map(property -> PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId())));
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +71,9 @@ public class PropertyService {
         }
         Page<Property> brokerProperties = propertyRepository.findPropertiesByBroker(userRepository.getReferenceById(brokerId), pageable);
         log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getSize(), brokerId);
-        return brokerProperties.map(PropertyMapper::entityToSummaryDTO);
+        List<UUID> propertiesId = brokerProperties.map(Property::getId).toList();
+        Map<UUID, ImageDTO> primaryImages = imageService.findPrimaryImagesForProperties(propertiesId);
+        return brokerProperties.map(property -> PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId())));
     }
 
     @Transactional
@@ -87,8 +90,6 @@ public class PropertyService {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }
-
-
 
 
 }

@@ -159,6 +159,13 @@ public class ImageService {
     }
 
 
+    public Map<UUID, ImageDTO> findPrimaryImagesForProperties(List<UUID> propertyIds){
+        return imageRepository.findPrimaryImagesByPropertyIds(propertyIds)
+                .stream()
+                .collect(Collectors.toMap(image -> image.getProperty().getId(), ImageMapper::entityToDTO));
+    }
+
+
     private Image findImageByIdAndVerifyIfRelatedToProperty(UUID propertyId, UUID imageId){
         Image image = imageRepository.findById(imageId).orElseThrow(() -> new NotFoundException("Image with ID: " + imageId + " not found"));
         log.debug("Checking if the image with ID : {} is related to the property with ID: {}", imageId, propertyId);
