@@ -22,14 +22,18 @@ public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(nullable = false, length = 255)
     private String title;
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-    @Column(precision = 15, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private PropertyType type;
 
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private PropertyStatus status = PropertyStatus.AVAILABLE;
@@ -37,7 +41,7 @@ public class Property {
     private Integer suites;
     private Integer bedrooms;
     private Integer bathrooms;
-    @Column(precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal area;
     private Integer parkingSpots;
 
