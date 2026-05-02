@@ -27,7 +27,7 @@ public class PropertyDetailDTO {
     private Integer suites;
     private Integer bedrooms;
     private Integer bathrooms;
-    private Double area;
+    private BigDecimal area;
     private Integer parkingSpots;
 
     private AddressDTO address;

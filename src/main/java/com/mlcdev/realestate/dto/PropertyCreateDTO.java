@@ -41,7 +41,7 @@ public class PropertyCreateDTO {
 
     @NotNull(message = "This field should not be left null")
     @Positive(message = "This field should be greater than 0")
-    private Double area;
+    private BigDecimal area;
 
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer parkingSpots;

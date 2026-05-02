@@ -24,6 +24,7 @@ public class Property {
     private UUID id;
     private String title;
     private String description;
+    @Column(precision = 15, scale = 2)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
@@ -36,7 +37,8 @@ public class Property {
     private Integer suites;
     private Integer bedrooms;
     private Integer bathrooms;
-    private Double area;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal area;
     private Integer parkingSpots;
 
     @Embedded
