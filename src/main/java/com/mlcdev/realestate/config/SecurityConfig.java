@@ -31,6 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -48,6 +49,7 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -150,7 +152,7 @@ public class SecurityConfig {
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(){
        return context -> {
-           if(context.getTokenType().getValue().equals("access_token")){
+           if(context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)){
                Authentication principal = context.getPrincipal();
                if (!(principal.getPrincipal() instanceof User user)) {
                    return;
@@ -193,7 +195,11 @@ public class SecurityConfig {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString()).build();
+        String keyId = Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(publicKey.getEncoded())
+                .substring(0, 16);
+        RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(keyId).build();
         return new ImmutableJWKSet<>(new JWKSet(rsaKey));
     }
 
@@ -216,7 +222,8 @@ public class SecurityConfig {
 
 
     private RegisteredClient buildClient(String clientId, String clientRedirectUri){
-        return RegisteredClient.withId(UUID.randomUUID().toString())
+        return RegisteredClient
+                .withId(UUID.nameUUIDFromBytes(clientId.getBytes()).toString())
                 .clientId(clientId)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
