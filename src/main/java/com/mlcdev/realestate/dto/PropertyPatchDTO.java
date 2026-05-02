@@ -6,7 +6,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -38,7 +37,7 @@ public class PropertyPatchDTO {
     private Integer bathrooms;
 
     @Positive(message = "This field should be greater than 0")
-    private Double area;
+    private BigDecimal area;
 
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer parkingSpots;

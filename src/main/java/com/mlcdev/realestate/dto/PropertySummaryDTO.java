@@ -5,8 +5,6 @@ import com.mlcdev.realestate.entities.PropertyType;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -27,7 +25,7 @@ public class PropertySummaryDTO {
     private Integer suites;
     private Integer bedrooms;
     private Integer bathrooms;
-    private Double area;
+    private BigDecimal area;
     private Integer parkingSpots;
 
     private String city;
