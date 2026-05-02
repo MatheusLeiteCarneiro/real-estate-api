@@ -4,6 +4,9 @@ import com.mlcdev.realestate.dto.UserCreateDTO;
 import com.mlcdev.realestate.dto.UserDTO;
 import com.mlcdev.realestate.dto.UserPatchDTO;
 import com.mlcdev.realestate.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,6 +21,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.UUID;
 
+@Tag(name = "Users", description = "User management endpoints (Admin only)")
+@SecurityRequirement(name = "oauth2")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/v1/users")
@@ -25,6 +30,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Find user by ID", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{userId}")
     public ResponseEntity<UserDTO> findById(@PathVariable UUID userId){
@@ -32,6 +38,7 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "List all users", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
@@ -39,6 +46,7 @@ public class UserController {
         return ResponseEntity.ok(dtoPage);
     }
 
+    @Operation(summary = "Create new user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody @Valid UserCreateDTO createDTO){
@@ -47,6 +55,7 @@ public class UserController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @Operation(summary = "Patch user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}")
     public ResponseEntity<UserDTO> update(@RequestBody @Valid UserPatchDTO patchDTO, @PathVariable UUID userId){
@@ -54,6 +63,7 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Deactivate user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}/toggle-active")
     public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId){

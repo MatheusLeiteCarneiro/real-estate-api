@@ -7,6 +7,9 @@ import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.security.JwtUtils;
 import com.mlcdev.realestate.service.PropertyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -23,7 +26,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.UUID;
 
-
+@Tag(name = "Properties", description = "Property management endpoints")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/properties")
@@ -31,18 +34,22 @@ public class PropertyController {
 
     private final PropertyService propertyService;
 
+    @Operation(summary = "List all properties", description = "Public endpoint - no authentication required")
     @GetMapping
     public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
         Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
         return ResponseEntity.ok(propertyPage);
     }
 
+    @Operation(summary = "Find property by ID", description = "Public endpoint - no authentication required")
     @GetMapping(value = "/{id}")
     public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id){
         PropertyDetailDTO propertyDTO = propertyService.findById(id);
         return ResponseEntity.ok(propertyDTO);
     }
 
+    @Operation(summary = "Create new Property", description = "Requires BROKER or ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PostMapping
     public ResponseEntity<PropertyDetailDTO> createProperty(@Valid @RequestBody PropertyCreateDTO dto, @AuthenticationPrincipal Jwt jwt){
@@ -51,12 +58,17 @@ public class PropertyController {
         return ResponseEntity.created(uri).body(createdDTO);
     }
 
+    @Operation(summary = "Patch a Property", description = "Requires the property BROKER or ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PatchMapping(value = "/{id}")
     public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
         PropertyDetailDTO responseDto = propertyService.update(id ,dto, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.ok(responseDto);
     }
+
+    @Operation(summary = "Delete a Property", description = "Requires the property BROKER or ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
@@ -64,7 +76,8 @@ public class PropertyController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @Operation(summary = "Find all properties by broker", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/broker/{brokerId}")
     public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(

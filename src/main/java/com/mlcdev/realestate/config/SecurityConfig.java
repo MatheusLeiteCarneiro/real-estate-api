@@ -84,6 +84,9 @@ public class SecurityConfig {
     @Value("${security.jwt.refresh-token-duration}")
     private Integer refreshTokenSecondsDuration;
 
+    @Value("${security.logout.redirect-url}")
+    private String logoutRedirectUrl;
+
     private final UserRepository userRepository;
 
 
@@ -120,12 +123,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/properties/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
                         .jwkSetUri(authorizationServerUrl + "/oauth2/jwks")
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .formLogin(Customizer.withDefaults());
+                .formLogin(Customizer.withDefaults())
+                .logout(logout -> logout.logoutSuccessUrl(logoutRedirectUrl).permitAll())
+        ;
 
         return http.build();
     }
@@ -171,7 +181,8 @@ public class SecurityConfig {
     @Profile("dev")
     @Bean
     public RegisteredClientRepository devRegisteredClientRepository() {
-        return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri));
+        return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri)
+                , buildClient("swagger-client", "http://localhost:8080/swagger-ui/oauth2-redirect.html"));
     }
 
     @Profile("prod")
