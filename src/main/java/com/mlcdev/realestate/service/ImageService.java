@@ -146,6 +146,7 @@ public class ImageService {
         return ImageMapper.entityToDTO(newPrimaryImage);
     }
 
+    @Transactional
     public void deleteAllImagesForProperty(UUID propertyId){
         log.info("Deleting all images for the property with ID: {}", propertyId);
         List<String> imagesFileIdentifiers = imageRepository.findAllByPropertyId(propertyId).stream().map(Image::getFileIdentifier).toList();
@@ -159,6 +160,7 @@ public class ImageService {
     }
 
 
+    @Transactional(readOnly = true)
     public Map<UUID, ImageDTO> findPrimaryImagesForProperties(List<UUID> propertyIds){
         return imageRepository.findPrimaryImagesByPropertyIds(propertyIds)
                 .stream()

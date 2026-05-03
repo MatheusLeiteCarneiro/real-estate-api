@@ -69,8 +69,8 @@ public class PropertyService {
             log.warn("Broker with ID {} doesn't exist", brokerId);
             throw new NotFoundException("Broker with Id: " + brokerId + " doesn't exist");
         }
-        Page<Property> brokerProperties = propertyRepository.findPropertiesByBroker(userRepository.getReferenceById(brokerId), pageable);
-        log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getSize(), brokerId);
+        Page<Property> brokerProperties = propertyRepository.findPropertiesByBrokerId(brokerId, pageable);
+        log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getNumberOfElements(), brokerId);
         List<UUID> propertiesId = brokerProperties.map(Property::getId).toList();
         Map<UUID, ImageDTO> primaryImages = imageService.findPrimaryImagesForProperties(propertiesId);
         return brokerProperties.map(property -> PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId())));
