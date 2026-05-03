@@ -63,13 +63,23 @@ public class UserService {
     public UserDTO update(UserPatchDTO patchDTO, UUID userId){
         log.info("Patching user with id: {}", userId);
         User user = findUserById(userId);
+
+        boolean changed = false;
+
         if(patchDTO.getUsername() != null && !patchDTO.getUsername().isBlank()){
-            checkUsernameAvailable(patchDTO.getUsername());
+            checkUsernameAvailable(patchDTO.getUsername(), userId);
             user.changeUsername(patchDTO.getUsername());
+            changed = true;
         }
         if(patchDTO.getPassword() != null && !patchDTO.getPassword().isBlank()){
             user.changePassword(passwordEncoder.encode(patchDTO.getPassword()));
+            changed = true;
         }
+        if (!changed) {
+            log.info("No changes detected for user with ID: {}", userId);
+            return UserMapper.entityToDTO(user);
+        }
+
         User patchedUser = userRepository.save(user);
         log.info("User with ID: {} successfully patched", userId);
         return UserMapper.entityToDTO(patchedUser);
@@ -97,9 +107,19 @@ public class UserService {
 
     private void checkUsernameAvailable(String username){
         if(userRepository.existsByUsername(username)){
-            log.warn("Attempt to use unavailable username: {}", username);
-            throw new ConflictException("Username not available");
+           throwUsernameConflict(username);
         }
+    }
+
+    private void checkUsernameAvailable(String username, UUID excludeUserId){
+        if(userRepository.existsByUsernameAndIdNot(username, excludeUserId)){
+            throwUsernameConflict(username);
+        }
+    }
+
+    private void throwUsernameConflict(String username) {
+        log.warn("Attempt to use unavailable username: {}", username);
+        throw new ConflictException("Username not available");
     }
 
 }
