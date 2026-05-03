@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.jspecify.annotations.NonNull;
 
 
 import java.util.*;
