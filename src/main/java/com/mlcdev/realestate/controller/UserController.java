@@ -1,8 +1,10 @@
 package com.mlcdev.realestate.controller;
 
+import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.dto.UserCreateDTO;
 import com.mlcdev.realestate.dto.UserDTO;
 import com.mlcdev.realestate.dto.UserPatchDTO;
+import com.mlcdev.realestate.service.PropertyService;
 import com.mlcdev.realestate.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,6 +30,7 @@ import java.util.UUID;
 @RequestMapping(value = "/v1/users")
 public class UserController {
 
+    private final PropertyService propertyService;
     private final UserService userService;
 
     @Operation(summary = "Find user by ID", description = "Requires ADMIN role")
@@ -70,4 +73,15 @@ public class UserController {
         return ResponseEntity.ok(userService.toggleActive(userId));
     }
 
+
+    @Operation(summary = "Find all properties by broker", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(value = "/{brokerId}/properties")
+    public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(
+            @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @PathVariable UUID brokerId){
+        Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
+        return ResponseEntity.ok(propertyPage);
+    }
 }

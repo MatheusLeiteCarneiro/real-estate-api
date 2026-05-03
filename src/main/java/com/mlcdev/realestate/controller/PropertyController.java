@@ -76,17 +76,4 @@ public class PropertyController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Find all properties by broker", description = "Requires ADMIN role")
-    @SecurityRequirement(name = "oauth2")
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(value = "/broker/{brokerId}")
-    public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(
-            @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable,
-            @PathVariable UUID brokerId){
-        Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
-        return ResponseEntity.ok(propertyPage);
-    }
-
-
-
 }
