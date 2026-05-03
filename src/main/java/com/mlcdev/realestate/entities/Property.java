@@ -7,7 +7,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -65,12 +67,12 @@ public class Property {
     private Instant updatedAt;
 
 
-    public void addImage(Image image){
+    public void addImage(Image image) {
         image.setProperty(this);
         images.add(image);
     }
 
-        public void removeImage(Image image){
+    public void removeImage(Image image) {
         image.setProperty(null);
         images.remove(image);
     }

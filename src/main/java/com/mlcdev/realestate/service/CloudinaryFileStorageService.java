@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class CloudinaryFileStorageService implements FileStorageService{
+public class CloudinaryFileStorageService implements FileStorageService {
 
     private final Cloudinary cloudinary;
 
@@ -22,7 +22,7 @@ public class CloudinaryFileStorageService implements FileStorageService{
     @Override
     public Map<String, String> uploadFile(byte[] file, String folderName) {
         try {
-            log.info("Starting upload of the file into the folder: {}",folderName);
+            log.info("Starting upload of the file into the folder: {}", folderName);
             Map<Object, Object> options = new HashMap<>();
             options.put("folder", folderName);
             options.put("quality", 70);
@@ -37,11 +37,10 @@ public class CloudinaryFileStorageService implements FileStorageService{
             String url = cloudinary.url().secure(true).generate(publicId);
             log.debug("File successfully uploaded to Cloudinary. PublicId: {}", publicId);
             Map<String, String> fileInformation = new HashMap<>();
-            fileInformation.put("url" , url);
+            fileInformation.put("url", url);
             fileInformation.put("fileIdentifier", publicId);
             return fileInformation;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error("Failed to upload file to Cloudinary. Folder: {}", folderName, e);
             throw new FileStorageException("An error occurred on the file upload", e);
         }

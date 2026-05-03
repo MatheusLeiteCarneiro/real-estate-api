@@ -2,6 +2,7 @@ package com.mlcdev.realestate.exception.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+
 import java.time.Instant;
 
 @Getter

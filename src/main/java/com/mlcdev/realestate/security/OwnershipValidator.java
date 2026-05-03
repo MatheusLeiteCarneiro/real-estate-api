@@ -9,15 +9,15 @@ import java.util.UUID;
 @Slf4j
 public class OwnershipValidator {
 
-    private OwnershipValidator(){}
+    private OwnershipValidator() {
+    }
 
-    public static void propertyVerifyBrokerPermission(Property property, UUID brokerId, boolean isAdmin){
-        if(!isAdmin && !property.getBroker().getId().equals(brokerId)){
+    public static void propertyVerifyBrokerPermission(Property property, UUID brokerId, boolean isAdmin) {
+        if (!isAdmin && !property.getBroker().getId().equals(brokerId)) {
             log.warn("User with ID: {} doesn't have the permission to modify the property with ID: {}", brokerId, property.getId());
             throw new BusinessRuleException("User doesn't have the permission to modify the property");
         }
     }
-
 
 
 }

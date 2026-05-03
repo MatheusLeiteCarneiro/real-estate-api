@@ -5,10 +5,11 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.jspecify.annotations.NonNull;
 
-
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 
 @NoArgsConstructor
@@ -42,17 +43,19 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean active = true;
 
-    public void changeUsername(String newUsername){
-        this.username= newUsername;
+    public void changeUsername(String newUsername) {
+        this.username = newUsername;
     }
 
-    public void changePassword(String encodedPassword){
-        this.password= encodedPassword;
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
-    public void toggleActive(){this.active = !this.active;}
+    public void toggleActive() {
+        this.active = !this.active;
+    }
 
-    public void addRole(Role role){
+    public void addRole(Role role) {
         this.authorities.add(role);
     }
 

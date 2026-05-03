@@ -1,6 +1,5 @@
 package com.mlcdev.realestate.util;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -11,11 +10,11 @@ public class ZipCodeDeserializer extends JsonDeserializer<String> {
 
 
     @Override
-    public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         String value = jsonParser.getText();
-        if(value == null){
+        if (value == null) {
             return null;
         }
-        return value.replaceAll("[^0-9]", "");
+        return value.replaceAll("\\D", "");
     }
 }

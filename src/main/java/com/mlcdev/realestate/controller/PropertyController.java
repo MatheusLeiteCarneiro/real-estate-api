@@ -36,14 +36,14 @@ public class PropertyController {
 
     @Operation(summary = "List all properties", description = "Public endpoint - no authentication required")
     @GetMapping
-    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
+    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
         return ResponseEntity.ok(propertyPage);
     }
 
     @Operation(summary = "Find property by ID", description = "Public endpoint - no authentication required")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id){
+    public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id) {
         PropertyDetailDTO propertyDTO = propertyService.findById(id);
         return ResponseEntity.ok(propertyDTO);
     }
@@ -52,7 +52,7 @@ public class PropertyController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PostMapping
-    public ResponseEntity<PropertyDetailDTO> createProperty(@Valid @RequestBody PropertyCreateDTO dto, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<PropertyDetailDTO> createProperty(@Valid @RequestBody PropertyCreateDTO dto, @AuthenticationPrincipal Jwt jwt) {
         PropertyDetailDTO createdDTO = propertyService.create(dto, JwtUtils.getUserId(jwt));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdDTO.getId()).toUri();
         return ResponseEntity.created(uri).body(createdDTO);
@@ -62,8 +62,8 @@ public class PropertyController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PatchMapping(value = "/{id}")
-    public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
-        PropertyDetailDTO responseDto = propertyService.update(id ,dto, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
+    public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        PropertyDetailDTO responseDto = propertyService.update(id, dto, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.ok(responseDto);
     }
 
@@ -71,7 +71,7 @@ public class PropertyController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<Void> deleteProperty(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         propertyService.delete(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.noContent().build();
     }

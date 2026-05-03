@@ -6,9 +6,10 @@ import com.mlcdev.realestate.entities.Property;
 
 public class PropertyMapper {
 
-    private PropertyMapper(){}
+    private PropertyMapper() {
+    }
 
-    public static PropertyDetailDTO entityToDetailDTO(Property entity){
+    public static PropertyDetailDTO entityToDetailDTO(Property entity) {
 
         return PropertyDetailDTO.builder()
                 .id(entity.getId())
@@ -31,7 +32,7 @@ public class PropertyMapper {
 
     }
 
-    public static PropertySummaryDTO entityToSummaryDTO(Property entity, ImageDTO primaryImageDTO){
+    public static PropertySummaryDTO entityToSummaryDTO(Property entity, ImageDTO primaryImageDTO) {
 
         return PropertySummaryDTO.builder()
                 .id(entity.getId())
@@ -52,7 +53,7 @@ public class PropertyMapper {
 
     }
 
-    public static Property createDTOToEntity(PropertyCreateDTO dto){
+    public static Property createDTOToEntity(PropertyCreateDTO dto) {
         return Property.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -69,19 +70,41 @@ public class PropertyMapper {
     }
 
 
-    public static Property applyPatchDTOToEntity(PropertyPatchDTO dto, Property entity){
-       if(dto.getTitle() != null){entity.setTitle(dto.getTitle());}
-       if(dto.getDescription() != null){entity.setDescription(dto.getDescription());}
-       if(dto.getPrice() != null){entity.setPrice(dto.getPrice());}
-       if(dto.getType() != null){entity.setType(dto.getType());}
-       if(dto.getStatus() != null){entity.setStatus(dto.getStatus());}
-       if(dto.getSuites() != null){entity.setSuites(dto.getSuites());}
-       if(dto.getBedrooms() != null){entity.setBedrooms(dto.getBedrooms());}
-       if(dto.getBathrooms() != null){entity.setBathrooms(dto.getBathrooms());}
-       if(dto.getArea() != null){entity.setArea(dto.getArea());}
-       if(dto.getParkingSpots() != null){entity.setParkingSpots(dto.getParkingSpots());}
-       if(dto.getAddress() != null){entity.setAddress(AddressMapper.dtoToEntity(dto.getAddress()));}
-       return entity;
+    public static Property applyPatchDTOToEntity(PropertyPatchDTO dto, Property entity) {
+        if (dto.getTitle() != null) {
+            entity.setTitle(dto.getTitle());
+        }
+        if (dto.getDescription() != null) {
+            entity.setDescription(dto.getDescription());
+        }
+        if (dto.getPrice() != null) {
+            entity.setPrice(dto.getPrice());
+        }
+        if (dto.getType() != null) {
+            entity.setType(dto.getType());
+        }
+        if (dto.getStatus() != null) {
+            entity.setStatus(dto.getStatus());
+        }
+        if (dto.getSuites() != null) {
+            entity.setSuites(dto.getSuites());
+        }
+        if (dto.getBedrooms() != null) {
+            entity.setBedrooms(dto.getBedrooms());
+        }
+        if (dto.getBathrooms() != null) {
+            entity.setBathrooms(dto.getBathrooms());
+        }
+        if (dto.getArea() != null) {
+            entity.setArea(dto.getArea());
+        }
+        if (dto.getParkingSpots() != null) {
+            entity.setParkingSpots(dto.getParkingSpots());
+        }
+        if (dto.getAddress() != null) {
+            entity.setAddress(AddressMapper.dtoToEntity(dto.getAddress()));
+        }
+        return entity;
     }
 
 }

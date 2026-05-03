@@ -59,38 +59,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final UserRepository userRepository;
     @Value("${jwt.public.key}")
     private RSAPublicKey publicKey;
-
     @Value("${jwt.private.key}")
     private RSAPrivateKey privateKey;
-
     @Value("${security.authorization-server.url}")
     private String authorizationServerUrl;
-
     @Value("${security.clients.spa.client-id:}")
     private String spaClientId;
-
     @Value("${security.clients.spa.redirect-uri:}")
     private String spaRedirectUri;
-
     @Value("${security.clients.postman.client-id:}")
     private String postmanClientId;
-
     @Value("${security.clients.postman.redirect-uri:}")
     private String postmanRedirectUri;
-
     @Value("${security.jwt.access-token-duration}")
     private Integer accessTokenSecondsDuration;
-
     @Value("${security.jwt.refresh-token-duration}")
     private Integer refreshTokenSecondsDuration;
-
+    @Value("${security.clients.swagger.client-id}")
+    private String swaggerClientId;
+    @Value("${security.clients.swagger.redirect-uri}")
+    private String swaggerRedirectUri;
     @Value("${security.logout.redirect-url}")
     private String logoutRedirectUrl;
-
-    private final UserRepository userRepository;
-
 
     @Bean
     @Order(1)
@@ -150,28 +143,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(){
-       return context -> {
-           if(context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)){
-               Authentication principal = context.getPrincipal();
-               if (!(principal.getPrincipal() instanceof User user)) {
-                   return;
-               }
-               List<String> authorities = user.getAuthorities()
-                       .stream()
-                       .map(GrantedAuthority::getAuthority)
-                       .toList();
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
+        return context -> {
+            if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
+                Authentication principal = context.getPrincipal();
+                if (!(principal.getPrincipal() instanceof User user)) {
+                    return;
+                }
+                List<String> authorities = user.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList();
 
-               context.getClaims()
-                       .subject(user.getId().toString())
-                       .claim("authorities", authorities)
-                       .claim("username", user.getUsername());
-           }
-       };
+                context.getClaims()
+                        .subject(user.getId().toString())
+                        .claim("authorities", authorities)
+                        .claim("username", user.getUsername());
+            }
+        };
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
         grantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -184,7 +177,7 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository devRegisteredClientRepository() {
         return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri)
-                , buildClient("swagger-client", "http://localhost:8080/swagger-ui/oauth2-redirect.html"));
+                , buildClient(swaggerClientId, swaggerRedirectUri));
     }
 
     @Profile("prod")
@@ -204,24 +197,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings(){
+    public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public RoleHierarchy roleHierarchy(){
+    public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.withDefaultRolePrefix()
                 .role("ADMIN").implies("BROKER")
                 .build();
     }
 
 
-    private RegisteredClient buildClient(String clientId, String clientRedirectUri){
+    private RegisteredClient buildClient(String clientId, String clientRedirectUri) {
         return RegisteredClient
                 .withId(UUID.nameUUIDFromBytes(clientId.getBytes()).toString())
                 .clientId(clientId)
