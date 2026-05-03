@@ -8,14 +8,15 @@ import java.util.UUID;
 
 public class JwtUtils {
 
-    private JwtUtils(){}
+    private JwtUtils() {
+    }
 
-    public static UUID getUserId(Jwt jwt){
+    public static UUID getUserId(Jwt jwt) {
         return UUID.fromString(jwt.getSubject());
     }
 
-    public static boolean isAdmin(Jwt jwt){
-        List<String> authorities =  jwt.getClaimAsStringList("authorities");
+    public static boolean isAdmin(Jwt jwt) {
+        List<String> authorities = jwt.getClaimAsStringList("authorities");
         return authorities != null && authorities.contains(Role.ROLE_ADMIN.name());
     }
 }

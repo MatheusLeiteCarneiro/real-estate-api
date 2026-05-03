@@ -19,7 +19,7 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isBlank()){
+        if (value == null || value.isBlank()) {
             return true;
         }
         return value.length() >= MIN_LENGTH &&

@@ -17,22 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class AdminUserInitializer implements CommandLineRunner {
 
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     @Value("${admin.username}")
     private String adminUsername;
     @Value("${admin.password}")
     private String adminPassword;
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-
-
     @Override
     @Transactional
     public void run(String @NonNull ... args) {
-        if(userRepository.existsByUsername(adminUsername)){
+        if (userRepository.existsByUsername(adminUsername)) {
             log.info("admin user already exist, skipping seed");
-        }
-        else {
+        } else {
             User adminUser = User.builder()
                     .username(adminUsername)
                     .password(passwordEncoder.encode(adminPassword))

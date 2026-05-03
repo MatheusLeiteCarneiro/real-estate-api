@@ -36,7 +36,7 @@ public class UserController {
     @Operation(summary = "Find user by ID", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{userId}")
-    public ResponseEntity<UserDTO> findById(@PathVariable UUID userId){
+    public ResponseEntity<UserDTO> findById(@PathVariable UUID userId) {
         UserDTO dto = userService.findById(userId);
         return ResponseEntity.ok(dto);
     }
@@ -44,7 +44,7 @@ public class UserController {
     @Operation(summary = "List all users", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable){
+    public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<UserDTO> dtoPage = userService.findAll(pageable);
         return ResponseEntity.ok(dtoPage);
     }
@@ -52,8 +52,8 @@ public class UserController {
     @Operation(summary = "Create new user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserDTO> create(@RequestBody @Valid UserCreateDTO createDTO){
-       UserDTO dto = userService.create(createDTO);
+    public ResponseEntity<UserDTO> create(@RequestBody @Valid UserCreateDTO createDTO) {
+        UserDTO dto = userService.create(createDTO);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -61,7 +61,7 @@ public class UserController {
     @Operation(summary = "Patch user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDTO> update(@RequestBody @Valid UserPatchDTO patchDTO, @PathVariable UUID userId){
+    public ResponseEntity<UserDTO> update(@RequestBody @Valid UserPatchDTO patchDTO, @PathVariable UUID userId) {
         UserDTO dto = userService.update(patchDTO, userId);
         return ResponseEntity.ok(dto);
     }
@@ -69,7 +69,7 @@ public class UserController {
     @Operation(summary = "Deactivate user", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}/toggle-active")
-    public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId){
+    public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.toggleActive(userId));
     }
 
@@ -80,7 +80,7 @@ public class UserController {
     @GetMapping(value = "/{brokerId}/properties")
     public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(
             @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable,
-            @PathVariable UUID brokerId){
+            @PathVariable UUID brokerId) {
         Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
         return ResponseEntity.ok(propertyPage);
     }

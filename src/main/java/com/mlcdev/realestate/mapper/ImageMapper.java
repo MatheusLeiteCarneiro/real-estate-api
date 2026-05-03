@@ -5,9 +5,10 @@ import com.mlcdev.realestate.entities.Image;
 
 public class ImageMapper {
 
-    private ImageMapper(){}
+    private ImageMapper() {
+    }
 
-    public static ImageDTO entityToDTO(Image entity){
+    public static ImageDTO entityToDTO(Image entity) {
         return ImageDTO.builder()
                 .id(entity.getId())
                 .fileIdentifier(entity.getFileIdentifier())

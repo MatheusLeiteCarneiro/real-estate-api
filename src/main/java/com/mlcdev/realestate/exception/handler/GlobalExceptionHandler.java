@@ -19,39 +19,39 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(NotFoundException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleNotFound(NotFoundException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ApiError error = new ApiError(status.value(), exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiError> handleConflict(ConflictException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleConflict(ConflictException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;
         ApiError error = new ApiError(status.value(), exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException exception, HttpServletRequest request) {
         ApiError error = new ApiError(422, exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(422).body(error);
     }
 
     @ExceptionHandler(ResourceMismatchException.class)
-    public ResponseEntity<ApiError> handleMismatch(ResourceMismatchException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleMismatch(ResourceMismatchException exception, HttpServletRequest request) {
         ApiError error = new ApiError(422, exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(422).body(error);
     }
 
     @ExceptionHandler(EmptyResourceException.class)
-    public ResponseEntity<ApiError> handleEmptyResource(EmptyResourceException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleEmptyResource(EmptyResourceException exception, HttpServletRequest request) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), request.getRequestURI());
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(FileStorageException.class)
-    public ResponseEntity<ApiError> handleFileStorage(FileStorageException exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleFileStorage(FileStorageException exception, HttpServletRequest request) {
         log.error("File storage error on {}: {}", request.getRequestURI(), exception.getMessage(), exception);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiError error = new ApiError(status.value(), exception.getMessage(), request.getRequestURI());
@@ -59,28 +59,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationApiError> handleValidation(MethodArgumentNotValidException exception, HttpServletRequest request){
+    public ResponseEntity<ValidationApiError> handleValidation(MethodArgumentNotValidException exception, HttpServletRequest request) {
         ValidationApiError error = new ValidationApiError(HttpStatus.BAD_REQUEST.value(), "Validation failed", request.getRequestURI());
         exception.getBindingResult().getFieldErrors().forEach(fieldError -> error.addError(fieldError.getField(), fieldError.getDefaultMessage()));
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleAccess(HttpServletRequest request){
+    public ResponseEntity<ApiError> handleAccess(HttpServletRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
         ApiError error = new ApiError(status.value(), "Access Denied", request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiError> handleAuthorization(HttpServletRequest request){
+    public ResponseEntity<ApiError> handleAuthorization(HttpServletRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
         ApiError error = new ApiError(status.value(), "Insufficient Permission", request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request) {
         log.error("Unexpected error on {}: {}", request.getRequestURI(), exception.getMessage(), exception);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiError error = new ApiError(status.value(), "An unexpected error occurred", request.getRequestURI());

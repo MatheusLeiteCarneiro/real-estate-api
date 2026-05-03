@@ -2,7 +2,9 @@ package com.mlcdev.realestate.dto;
 
 import com.mlcdev.realestate.entities.PropertyStatus;
 import com.mlcdev.realestate.entities.PropertyType;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;

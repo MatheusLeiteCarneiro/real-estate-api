@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 public @interface StrongPassword {
 
     String message() default
-        "password must be at least 8 characters and contain uppercase, lowercase, number and special character (@$!%*?&)";
+            "password must be at least 8 characters and contain uppercase, lowercase, number and special character (@$!%*?&)";
 
 
     Class<?>[] groups() default {};

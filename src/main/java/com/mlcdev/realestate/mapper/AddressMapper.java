@@ -9,7 +9,7 @@ public class AddressMapper {
     }
 
 
-    public static AddressDTO entityToDTO(Address address){
+    public static AddressDTO entityToDTO(Address address) {
         return AddressDTO.builder()
                 .street(address.getStreet())
                 .number(address.getNumber())
@@ -21,7 +21,7 @@ public class AddressMapper {
                 .build();
     }
 
-    public static Address dtoToEntity(AddressDTO dto){
+    public static Address dtoToEntity(AddressDTO dto) {
         return Address.builder()
                 .street(dto.getStreet())
                 .number(dto.getNumber())

@@ -28,7 +28,7 @@ public class PropertyService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<PropertySummaryDTO> findAll(Pageable pageable){
+    public Page<PropertySummaryDTO> findAll(Pageable pageable) {
         log.debug("Retrieving properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Property> properties = propertyRepository.findAll(pageable);
         List<UUID> propertiesId = properties.map(Property::getId).toList();
@@ -37,13 +37,13 @@ public class PropertyService {
     }
 
     @Transactional(readOnly = true)
-    public PropertyDetailDTO findById(UUID id){
+    public PropertyDetailDTO findById(UUID id) {
         log.debug("Retrieving property with ID: {}", id);
         return PropertyMapper.entityToDetailDTO(propertyByIdOrElseThrow(id));
     }
 
     @Transactional
-    public PropertyDetailDTO create(PropertyCreateDTO createDTO, UUID brokerId){
+    public PropertyDetailDTO create(PropertyCreateDTO createDTO, UUID brokerId) {
         log.info("Creating property with title: {}", createDTO.getTitle());
         Property property = PropertyMapper.createDTOToEntity(createDTO);
         property.setBroker(userRepository.getReferenceById(brokerId));
@@ -53,7 +53,7 @@ public class PropertyService {
     }
 
     @Transactional
-    public PropertyDetailDTO update(UUID propertyId, PropertyPatchDTO dto, UUID brokerId, boolean isAdmin){
+    public PropertyDetailDTO update(UUID propertyId, PropertyPatchDTO dto, UUID brokerId, boolean isAdmin) {
         log.info("Patching property with id: {}", propertyId);
         Property property = propertyByIdOrElseThrow(propertyId);
         OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
@@ -65,7 +65,7 @@ public class PropertyService {
     @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findBrokerProperties(Pageable pageable, UUID brokerId) {
         log.debug("Retrieving properties from the broker with id: {}", brokerId);
-        if(!userRepository.existsById(brokerId)){
+        if (!userRepository.existsById(brokerId)) {
             log.warn("Broker with ID {} doesn't exist", brokerId);
             throw new NotFoundException("Broker with Id: " + brokerId + " doesn't exist");
         }
@@ -86,7 +86,7 @@ public class PropertyService {
         log.info("Property with ID: {} successfully deleted", propertyId);
     }
 
-    private Property propertyByIdOrElseThrow(UUID id){
+    private Property propertyByIdOrElseThrow(UUID id) {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }

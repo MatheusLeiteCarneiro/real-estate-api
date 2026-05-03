@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class ValidationApiError extends ApiError{
+public class ValidationApiError extends ApiError {
 
     private final List<FieldError> errors = new ArrayList<>();
 
@@ -14,9 +14,10 @@ public class ValidationApiError extends ApiError{
         super(status, error, path);
     }
 
-    public void addError(String fieldName, String message){
+    public void addError(String fieldName, String message) {
         errors.add(new FieldError(fieldName, message));
     }
 
-    public record FieldError(String fieldName, String message) {}
+    public record FieldError(String fieldName, String message) {
+    }
 }

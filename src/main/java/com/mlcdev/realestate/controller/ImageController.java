@@ -30,14 +30,14 @@ public class ImageController {
 
     @Operation(summary = "List all images for a property", description = "Public endpoint - no authentication required")
     @GetMapping
-    public ResponseEntity<List<ImageDTO>> findAllImages(@PathVariable UUID propertyId){
+    public ResponseEntity<List<ImageDTO>> findAllImages(@PathVariable UUID propertyId) {
         List<ImageDTO> images = imageService.findAllImages(propertyId);
         return ResponseEntity.ok(images);
     }
 
     @Operation(summary = "Find primary image for a property", description = "Public endpoint - no authentication required")
     @GetMapping(value = "/primary")
-    public ResponseEntity<ImageDTO> findPrimaryImage(@PathVariable UUID propertyId){
+    public ResponseEntity<ImageDTO> findPrimaryImage(@PathVariable UUID propertyId) {
         ImageDTO dto = imageService.findPrimaryImage(propertyId);
         return ResponseEntity.ok(dto);
     }
@@ -49,7 +49,7 @@ public class ImageController {
     public ResponseEntity<List<ImageDTO>> postImages(@PathVariable UUID propertyId,
                                                      @RequestPart("files")
                                                      List<MultipartFile> files,
-                                                     @AuthenticationPrincipal Jwt jwt){
+                                                     @AuthenticationPrincipal Jwt jwt) {
         List<ImageDTO> imageDTOList = imageService.saveImages(propertyId, files, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(propertyId).toUri();
         return ResponseEntity.created(uri).body(imageDTOList);
@@ -59,22 +59,19 @@ public class ImageController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PatchMapping(value = "/{imageId}/primary")
-    public ResponseEntity<ImageDTO> updatePrimaryImage(@PathVariable UUID propertyId, @PathVariable UUID imageId, @AuthenticationPrincipal Jwt jwt){
-       ImageDTO imageDTO = imageService.updateImageAsPrimary(propertyId, imageId, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
-       return ResponseEntity.ok(imageDTO);
+    public ResponseEntity<ImageDTO> updatePrimaryImage(@PathVariable UUID propertyId, @PathVariable UUID imageId, @AuthenticationPrincipal Jwt jwt) {
+        ImageDTO imageDTO = imageService.updateImageAsPrimary(propertyId, imageId, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
+        return ResponseEntity.ok(imageDTO);
     }
 
     @Operation(summary = "Delete an image for a Property", description = "Requires the property BROKER or ADMIN role")
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @DeleteMapping(value = "/{imageId}")
-    public ResponseEntity<Void> deleteImage(@PathVariable UUID propertyId, @PathVariable UUID imageId, @AuthenticationPrincipal Jwt jwt){
+    public ResponseEntity<Void> deleteImage(@PathVariable UUID propertyId, @PathVariable UUID imageId, @AuthenticationPrincipal Jwt jwt) {
         imageService.deleteImage(propertyId, imageId, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.noContent().build();
     }
-
-
-
 
 
 }

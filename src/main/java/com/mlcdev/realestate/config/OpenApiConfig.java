@@ -3,7 +3,10 @@ package com.mlcdev.realestate.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.*;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.OAuthFlows;
+import io.swagger.v3.oas.models.security.Scopes;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,19 +18,19 @@ public class OpenApiConfig {
     private String authorizationServerUrl;
 
     @Bean
-    public OpenAPI openAPI(){
+    public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("Real Estate API")
                         .description("""
                                 API for property management
-                        
+                                
                                 ## Authentication
                                 Click **Authorize** to login. To switch users:
                                 1. Click **Logout** in the Authorize dialog
                                 2. [Clear server session](http://localhost:8080/logout)
                                 3. Click **Authorize** again to login with another user
-                        
+                                
                                 """)
                         .version("1.0.0"))
                 .components(new Components()

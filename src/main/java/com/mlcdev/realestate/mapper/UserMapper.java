@@ -8,9 +8,10 @@ import java.util.stream.Collectors;
 
 public class UserMapper {
 
-    private UserMapper(){}
+    private UserMapper() {
+    }
 
-    public static UserDTO entityToDTO(User entity){
+    public static UserDTO entityToDTO(User entity) {
         return UserDTO.builder()
                 .id(entity.getId())
                 .username(entity.getUsername())

@@ -39,5 +39,5 @@ public class AddressDTO {
     @JsonDeserialize(using = ZipCodeDeserializer.class)
     private String zipCode;
 
-    
+
 }
