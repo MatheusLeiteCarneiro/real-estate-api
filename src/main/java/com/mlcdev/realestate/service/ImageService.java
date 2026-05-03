@@ -3,10 +3,7 @@ package com.mlcdev.realestate.service;
 import com.mlcdev.realestate.dto.ImageDTO;
 import com.mlcdev.realestate.entities.Image;
 import com.mlcdev.realestate.entities.Property;
-import com.mlcdev.realestate.exception.ResourceMismatchException;
-import com.mlcdev.realestate.exception.EmptyResourceException;
-import com.mlcdev.realestate.exception.FileStorageException;
-import com.mlcdev.realestate.exception.NotFoundException;
+import com.mlcdev.realestate.exception.*;
 import com.mlcdev.realestate.mapper.ImageMapper;
 import com.mlcdev.realestate.repository.ImageRepository;
 import com.mlcdev.realestate.repository.PropertyRepository;
@@ -25,6 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class ImageService {
+
+    private static final long MAX_FILE_SIZE = 10L * 1024L * 1024L;
 
     @Value("${property.image.folder}")
     private String propertyImageFolder;
@@ -53,6 +52,18 @@ public class ImageService {
         if(files.isEmpty()){
             log.warn("Can't save with a empty file list");
             throw new EmptyResourceException("The file list is empty");
+        }
+
+        for(MultipartFile file : files){
+            String contentType = file.getContentType();
+            if(contentType == null || !contentType.startsWith("image/")){
+                log.warn("Invalid file type uploaded: {}", contentType);
+                throw new BusinessRuleException("Only image files are allowed");
+            }
+            if(file.getSize() > MAX_FILE_SIZE){
+                log.warn("File size exceeds limit: {} bytes", file.getSize());
+                throw new BusinessRuleException("File size exceeds 10MB limit");
+            }
         }
 
         log.info("Saving {} images for the property with ID: {}",files.size(),propertyId);
