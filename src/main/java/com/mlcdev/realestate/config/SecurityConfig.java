@@ -78,6 +78,10 @@ public class SecurityConfig {
     private Integer accessTokenSecondsDuration;
     @Value("${security.jwt.refresh-token-duration}")
     private Integer refreshTokenSecondsDuration;
+    @Value("${security.clients.swagger.client-id}")
+    private String swaggerClientId;
+    @Value("${security.clients.swagger.redirect-uri}")
+    private String swaggerRedirectUri;
     @Value("${security.logout.redirect-url}")
     private String logoutRedirectUrl;
 
@@ -173,7 +177,7 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository devRegisteredClientRepository() {
         return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri)
-                , buildClient("swagger-client", "http://localhost:8080/swagger-ui/oauth2-redirect.html"));
+                , buildClient(swaggerClientId, swaggerRedirectUri));
     }
 
     @Profile("prod")
