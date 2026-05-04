@@ -65,7 +65,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "Toggle property available status", description = "Requires the property BROKER or ADMIN role")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('BROKER')")
     @PatchMapping("/{id}/toggle-active")
     public ResponseEntity<PropertyDetailDTO> toggleAvailable(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(propertyService.toggleAvailable(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt)));
