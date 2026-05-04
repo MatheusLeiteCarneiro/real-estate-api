@@ -4,6 +4,7 @@ import com.mlcdev.realestate.dto.PropertySummaryDTO;
 import com.mlcdev.realestate.dto.UserCreateDTO;
 import com.mlcdev.realestate.dto.UserDTO;
 import com.mlcdev.realestate.dto.UserPatchDTO;
+import com.mlcdev.realestate.security.JwtUtils;
 import com.mlcdev.realestate.service.PropertyService;
 import com.mlcdev.realestate.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,6 +37,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Find user by ID", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{userId}")
     public ResponseEntity<UserDTO> findById(@PathVariable UUID userId) {
@@ -42,6 +46,7 @@ public class UserController {
     }
 
     @Operation(summary = "List all users", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
@@ -50,6 +55,7 @@ public class UserController {
     }
 
     @Operation(summary = "Create new user", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody @Valid UserCreateDTO createDTO) {
@@ -59,6 +65,7 @@ public class UserController {
     }
 
     @Operation(summary = "Patch user", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}")
     public ResponseEntity<UserDTO> update(@RequestBody @Valid UserPatchDTO patchDTO, @PathVariable UUID userId) {
@@ -67,6 +74,7 @@ public class UserController {
     }
 
     @Operation(summary = "Toggle property active status", description = "Requires ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}/toggle-active")
     public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId) {
@@ -83,5 +91,14 @@ public class UserController {
             @PathVariable UUID brokerId) {
         Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
         return ResponseEntity.ok(propertyPage);
+    }
+
+    @Operation(summary = "Find the authenticated user data", description = "Requires to be logged")
+    @SecurityRequirement(name = "oauth2")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(value = "/me")
+    public ResponseEntity<UserDTO> findMe(@AuthenticationPrincipal Jwt jwt) {
+        UserDTO dto = userService.findById(JwtUtils.getUserId(jwt));
+        return ResponseEntity.ok(dto);
     }
 }
