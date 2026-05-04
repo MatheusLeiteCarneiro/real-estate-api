@@ -42,7 +42,7 @@ public class ImageController {
         return ResponseEntity.ok(dto);
     }
 
-
+    @Operation(summary = "Post images for a property", description = "Requires the property BROKER or ADMIN role")
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

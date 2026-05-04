@@ -28,10 +28,10 @@ public class OpenApiConfig {
                                 ## Authentication
                                 Click **Authorize** to login. To switch users:
                                 1. Click **Logout** in the Authorize dialog
-                                2. [Clear server session](http://localhost:8080/logout)
+                                2. [Clear server session](%s/logout)
                                 3. Click **Authorize** again to login with another user
                                 
-                                """)
+                                """.formatted(authorizationServerUrl))
                         .version("1.0.0"))
                 .components(new Components()
                         .addSecuritySchemes("oauth2", new SecurityScheme()
