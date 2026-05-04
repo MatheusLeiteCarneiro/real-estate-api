@@ -31,10 +31,11 @@ public class PropertyController {
 
     private final PropertyService propertyService;
 
-    @Operation(summary = "List all properties", description = "Public endpoint - no authentication required")
+
+    @Operation(summary = "List all available properties", description = "Public endpoint - no authentication required")
     @GetMapping
-    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
+    public ResponseEntity<Page<PropertySummaryDTO>> findAvailableProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        Page<PropertySummaryDTO> propertyPage = propertyService.findAllAvailable(pageable);
         return ResponseEntity.ok(propertyPage);
     }
 
@@ -65,7 +66,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "Toggle property available status", description = "Requires the property BROKER or ADMIN role")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('BROKER')")
     @PatchMapping("/{id}/toggle-active")
     public ResponseEntity<PropertyDetailDTO> toggleAvailable(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(propertyService.toggleAvailable(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt)));
@@ -78,6 +79,16 @@ public class PropertyController {
     public ResponseEntity<Void> deleteProperty(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         propertyService.delete(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "List all properties - including those that are unavailable", description = "Requires BROKER or ADMIN role")
+    @SecurityRequirement(name = "oauth2")
+    @PreAuthorize("hasRole('BROKER')")
+    @GetMapping("/all")
+    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
+        return ResponseEntity.ok(propertyPage);
     }
 
 }

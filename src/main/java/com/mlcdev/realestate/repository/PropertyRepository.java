@@ -15,4 +15,7 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
     @Query("SELECT p FROM Property p WHERE p.broker.id = :brokerId")
     Page<Property> findPropertiesByBrokerId(UUID brokerId, Pageable pageable);
 
+    @Query("SELECT p FROM Property p WHERE p.available = TRUE")
+    Page<Property> findAllAvailable(Pageable pageable);
+
 }

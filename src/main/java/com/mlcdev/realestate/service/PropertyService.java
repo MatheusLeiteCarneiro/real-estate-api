@@ -28,12 +28,17 @@ public class PropertyService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
+    public Page<PropertySummaryDTO> findAllAvailable(Pageable pageable) {
+        log.debug("Retrieving available properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<Property> properties = propertyRepository.findAllAvailable(pageable);
+        return toSummaryPage(properties);
+    }
+
+    @Transactional(readOnly = true)
     public Page<PropertySummaryDTO> findAll(Pageable pageable) {
         log.debug("Retrieving properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Property> properties = propertyRepository.findAll(pageable);
-        List<UUID> propertiesId = properties.map(Property::getId).toList();
-        Map<UUID, ImageDTO> primaryImages = imageService.findPrimaryImagesForProperties(propertiesId);
-        return properties.map(property -> PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId())));
+        return toSummaryPage(properties);
     }
 
     @Transactional(readOnly = true)
@@ -101,6 +106,18 @@ public class PropertyService {
     private Property propertyByIdOrElseThrow(UUID id) {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
+    }
+
+    private Map<UUID, ImageDTO> fetchPrimaryImages(Page<Property> properties) {
+        List<UUID> propertyIds = properties.map(Property::getId).toList();
+        return imageService.findPrimaryImagesForProperties(propertyIds);
+    }
+
+    private Page<PropertySummaryDTO> toSummaryPage(Page<Property> properties) {
+        Map<UUID, ImageDTO> primaryImages = fetchPrimaryImages(properties);
+        return properties.map(property ->
+                PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId()))
+        );
     }
 
 
