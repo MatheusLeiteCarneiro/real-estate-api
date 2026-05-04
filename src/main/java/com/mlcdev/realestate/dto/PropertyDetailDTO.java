@@ -1,7 +1,7 @@
 package com.mlcdev.realestate.dto;
 
-import com.mlcdev.realestate.entities.PropertyStatus;
-import com.mlcdev.realestate.entities.PropertyType;
+import com.mlcdev.realestate.entities.PropertyCategory;
+import com.mlcdev.realestate.entities.TransactionType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -23,8 +23,8 @@ public class PropertyDetailDTO {
     private String description;
     private BigDecimal price;
 
-    private PropertyType type;
-    private PropertyStatus status;
+    private TransactionType transactionType;
+    private PropertyCategory category;
 
     private Integer suites;
     private Integer bedrooms;
@@ -39,4 +39,7 @@ public class PropertyDetailDTO {
 
     private Instant createdAt;
     private Instant updatedAt;
+
+    private boolean available;
+
 }

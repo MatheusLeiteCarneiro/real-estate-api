@@ -1,6 +1,7 @@
 package com.mlcdev.realestate.dto;
 
-import com.mlcdev.realestate.entities.PropertyType;
+import com.mlcdev.realestate.entities.PropertyCategory;
+import com.mlcdev.realestate.entities.TransactionType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -23,12 +24,16 @@ public class PropertyCreateDTO {
     @Size(min = 10, message = "The description should contain at least 10 characters")
     private String description;
 
+
     @NotNull(message = "This field should not be left null")
     @Positive(message = "This field should be greater than 0")
     private BigDecimal price;
 
-    @NotNull(message = "This field should not be left null")
-    private PropertyType type;
+    @NotNull(message = "Transaction type is required")
+    private TransactionType transactionType;
+
+    @NotNull(message = "Category is required")
+    private PropertyCategory category;
 
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer suites;

@@ -1,7 +1,7 @@
 package com.mlcdev.realestate.dto;
 
-import com.mlcdev.realestate.entities.PropertyStatus;
-import com.mlcdev.realestate.entities.PropertyType;
+import com.mlcdev.realestate.entities.PropertyCategory;
+import com.mlcdev.realestate.entities.TransactionType;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -25,9 +25,9 @@ public class PropertyPatchDTO {
     @Positive(message = "This field should be greater than 0")
     private BigDecimal price;
 
-    private PropertyType type;
+    private TransactionType transactionType;
 
-    private PropertyStatus status;
+    private PropertyCategory category;
 
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer suites;
@@ -44,5 +44,5 @@ public class PropertyPatchDTO {
     @PositiveOrZero(message = "This field cannot be negative")
     private Integer parkingSpots;
 
-    private AddressDTO address;
+    private AddressPatchDTO address;
 }

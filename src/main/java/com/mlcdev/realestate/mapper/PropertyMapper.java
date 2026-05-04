@@ -16,8 +16,8 @@ public class PropertyMapper {
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .price(entity.getPrice())
-                .type(entity.getType())
-                .status(entity.getStatus())
+                .transactionType(entity.getTransactionType())
+                .category(entity.getCategory())
                 .suites(entity.getSuites())
                 .bedrooms(entity.getBedrooms())
                 .bathrooms(entity.getBathrooms())
@@ -27,6 +27,7 @@ public class PropertyMapper {
                 .images(entity.getImages().stream().map(ImageMapper::entityToDTO).toList())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .available(entity.isAvailable())
                 .build();
 
 
@@ -37,9 +38,10 @@ public class PropertyMapper {
         return PropertySummaryDTO.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
+                .description(entity.getDescription())
                 .price(entity.getPrice())
-                .type(entity.getType())
-                .status(entity.getStatus())
+                .transactionType(entity.getTransactionType())
+                .category(entity.getCategory())
                 .suites(entity.getSuites())
                 .bedrooms(entity.getBedrooms())
                 .bathrooms(entity.getBathrooms())
@@ -48,6 +50,7 @@ public class PropertyMapper {
                 .city(entity.getAddress().getCity())
                 .state(entity.getAddress().getState())
                 .primaryImage(primaryImageDTO)
+                .available(entity.isAvailable())
                 .build();
 
 
@@ -57,8 +60,9 @@ public class PropertyMapper {
         return Property.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .transactionType(dto.getTransactionType())
+                .category(dto.getCategory())
                 .price(dto.getPrice())
-                .type(dto.getType())
                 .suites(dto.getSuites())
                 .bedrooms(dto.getBedrooms())
                 .bathrooms(dto.getBathrooms())
@@ -80,11 +84,11 @@ public class PropertyMapper {
         if (dto.getPrice() != null) {
             entity.setPrice(dto.getPrice());
         }
-        if (dto.getType() != null) {
-            entity.setType(dto.getType());
+        if(dto.getCategory() != null){
+            entity.setCategory(dto.getCategory());
         }
-        if (dto.getStatus() != null) {
-            entity.setStatus(dto.getStatus());
+        if(dto.getTransactionType() != null){
+            entity.setTransactionType(dto.getTransactionType());
         }
         if (dto.getSuites() != null) {
             entity.setSuites(dto.getSuites());
@@ -102,7 +106,7 @@ public class PropertyMapper {
             entity.setParkingSpots(dto.getParkingSpots());
         }
         if (dto.getAddress() != null) {
-            entity.setAddress(AddressMapper.dtoToEntity(dto.getAddress()));
+            entity.setAddress(AddressMapper.patchDtoToEntity(dto.getAddress(), entity.getAddress()));
         }
         return entity;
     }
