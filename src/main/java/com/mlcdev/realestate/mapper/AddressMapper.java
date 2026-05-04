@@ -1,6 +1,7 @@
 package com.mlcdev.realestate.mapper;
 
 import com.mlcdev.realestate.dto.AddressDTO;
+import com.mlcdev.realestate.dto.AddressPatchDTO;
 import com.mlcdev.realestate.entities.Address;
 
 public class AddressMapper {
@@ -31,5 +32,30 @@ public class AddressMapper {
                 .state(dto.getState())
                 .zipCode(dto.getZipCode())
                 .build();
+    }
+
+    public static Address patchDtoToEntity(AddressPatchDTO dto, Address entity){
+        if (dto.getStreet() != null && !dto.getStreet().isBlank()) {
+            entity.setStreet(dto.getStreet());
+        }
+        if (dto.getNumber() != null && !dto.getNumber().isBlank()) {
+            entity.setNumber(dto.getNumber());
+        }
+        if (dto.getComplement() != null) {
+            entity.setComplement(dto.getComplement());
+        }
+        if (dto.getNeighborhood() != null && !dto.getNeighborhood().isBlank()) {
+            entity.setNeighborhood(dto.getNeighborhood());
+        }
+        if (dto.getCity() != null && !dto.getCity().isBlank()) {
+            entity.setCity(dto.getCity());
+        }
+        if (dto.getState() != null && !dto.getState().isBlank()) {
+            entity.setState(dto.getState());
+        }
+        if (dto.getZipCode() != null && !dto.getZipCode().isBlank()) {
+            entity.setZipCode(dto.getZipCode());
+        }
+        return entity;
     }
 }

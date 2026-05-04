@@ -66,7 +66,7 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
-    @Operation(summary = "Deactivate user", description = "Requires ADMIN role")
+    @Operation(summary = "Toggle property active status", description = "Requires ADMIN role")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{userId}/toggle-active")
     public ResponseEntity<UserDTO> toggleActive(@PathVariable UUID userId) {

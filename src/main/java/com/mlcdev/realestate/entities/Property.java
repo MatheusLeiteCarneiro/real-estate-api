@@ -28,17 +28,17 @@ public class Property {
     private String title;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
+
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
-    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    private PropertyType type;
+    @Column(nullable = false, length = 20)
+    private TransactionType transactionType;
 
-    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private PropertyStatus status = PropertyStatus.AVAILABLE;
+    @Column(nullable = false, length = 20)
+    private PropertyCategory category;
 
     private Integer suites;
     private Integer bedrooms;
@@ -66,14 +66,7 @@ public class Property {
     @UpdateTimestamp
     private Instant updatedAt;
 
-
-    public void addImage(Image image) {
-        image.setProperty(this);
-        images.add(image);
-    }
-
-    public void removeImage(Image image) {
-        image.setProperty(null);
-        images.remove(image);
-    }
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean available = true;
 }

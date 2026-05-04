@@ -1,10 +1,7 @@
 package com.mlcdev.realestate.controller;
 
 
-import com.mlcdev.realestate.dto.PropertyCreateDTO;
-import com.mlcdev.realestate.dto.PropertyDetailDTO;
-import com.mlcdev.realestate.dto.PropertyPatchDTO;
-import com.mlcdev.realestate.dto.PropertySummaryDTO;
+import com.mlcdev.realestate.dto.*;
 import com.mlcdev.realestate.security.JwtUtils;
 import com.mlcdev.realestate.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,6 +62,13 @@ public class PropertyController {
     public ResponseEntity<PropertyDetailDTO> patchProperty(@Valid @RequestBody PropertyPatchDTO dto, @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         PropertyDetailDTO responseDto = propertyService.update(id, dto, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.ok(responseDto);
+    }
+
+    @Operation(summary = "Toggle property available status", description = "Requires the property BROKER or ADMIN role")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<PropertyDetailDTO> toggleAvailable(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(propertyService.toggleAvailable(id, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt)));
     }
 
     @Operation(summary = "Delete a Property", description = "Requires the property BROKER or ADMIN role")

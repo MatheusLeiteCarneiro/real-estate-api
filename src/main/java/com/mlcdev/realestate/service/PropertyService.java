@@ -77,6 +77,17 @@ public class PropertyService {
     }
 
     @Transactional
+    public PropertyDetailDTO toggleAvailable(UUID propertyId, UUID brokerId, boolean isAdmin) {
+        log.info("Toggling property with Id: {} availability", propertyId);
+        Property property = propertyByIdOrElseThrow(propertyId);
+        OwnershipValidator.propertyVerifyBrokerPermission(property, brokerId, isAdmin);
+        property.setAvailable(!property.isAvailable());
+        Property savedProperty = propertyRepository.save(property);
+        log.info("Property with ID: {} availability changed to: {}", propertyId, savedProperty.isAvailable());
+        return PropertyMapper.entityToDetailDTO(savedProperty);
+    }
+
+    @Transactional
     public void delete(UUID propertyId, UUID brokerId, boolean isAdmin) {
         log.info("Deleting property with id: {}", propertyId);
         Property property = propertyByIdOrElseThrow(propertyId);
@@ -86,10 +97,12 @@ public class PropertyService {
         log.info("Property with ID: {} successfully deleted", propertyId);
     }
 
+
     private Property propertyByIdOrElseThrow(UUID id) {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
     }
+
 
 
 }
