@@ -3,9 +3,12 @@ package com.mlcdev.realestate.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,6 +41,13 @@ public class User implements UserDetails {
     @Builder.Default
     @BatchSize(size = 50)
     private Set<Role> authorities = new HashSet<>();
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @Column(name = "active", nullable = false)
     @Builder.Default
