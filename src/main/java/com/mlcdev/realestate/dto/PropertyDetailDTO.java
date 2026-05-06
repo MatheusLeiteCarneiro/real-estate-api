@@ -38,7 +38,6 @@ public class PropertyDetailDTO {
     private List<ImageDTO> images = new ArrayList<>();
 
     private Instant createdAt;
-    private Instant updatedAt;
 
     private boolean available;
 

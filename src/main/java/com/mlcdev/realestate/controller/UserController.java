@@ -1,9 +1,6 @@
 package com.mlcdev.realestate.controller;
 
-import com.mlcdev.realestate.dto.PropertySummaryDTO;
-import com.mlcdev.realestate.dto.UserCreateDTO;
-import com.mlcdev.realestate.dto.UserDTO;
-import com.mlcdev.realestate.dto.UserPatchDTO;
+import com.mlcdev.realestate.dto.*;
 import com.mlcdev.realestate.security.JwtUtils;
 import com.mlcdev.realestate.service.PropertyService;
 import com.mlcdev.realestate.service.UserService;
@@ -15,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,8 +47,10 @@ public class UserController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<UserDTO> dtoPage = userService.findAll(pageable);
+    public ResponseEntity<Page<UserDTO>> findAll(
+            @ParameterObject @ModelAttribute UserFilter filter,
+            @ParameterObject @PageableDefault(sort = {"active", "createdAt"}, direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
+        Page<UserDTO> dtoPage = userService.findAll(pageable, filter);
         return ResponseEntity.ok(dtoPage);
     }
 
@@ -87,9 +87,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{brokerId}/properties")
     public ResponseEntity<Page<PropertySummaryDTO>> findBrokerProperties(
-            @ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @ParameterObject @ModelAttribute PropertyFilter filter,
+            @ParameterObject @PageableDefault(sort = {"available", "createdAt"}, direction = Sort.Direction.DESC, size = 20) Pageable pageable,
             @PathVariable UUID brokerId) {
-        Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, brokerId);
+        Page<PropertySummaryDTO> propertyPage = propertyService.findBrokerProperties(pageable, filter,brokerId);
         return ResponseEntity.ok(propertyPage);
     }
 

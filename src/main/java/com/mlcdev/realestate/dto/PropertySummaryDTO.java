@@ -30,6 +30,7 @@ public class PropertySummaryDTO {
     private BigDecimal area;
     private Integer parkingSpots;
 
+    private String neighborhood;
     private String city;
     private String state;
 
