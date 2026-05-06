@@ -26,7 +26,6 @@ public class PropertyMapper {
                 .address(AddressMapper.entityToDTO(entity.getAddress()))
                 .images(entity.getImages().stream().map(ImageMapper::entityToDTO).toList())
                 .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
                 .available(entity.isAvailable())
                 .build();
 
