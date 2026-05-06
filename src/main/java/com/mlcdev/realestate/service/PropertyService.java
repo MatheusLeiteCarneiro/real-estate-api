@@ -7,10 +7,12 @@ import com.mlcdev.realestate.mapper.PropertyMapper;
 import com.mlcdev.realestate.repository.PropertyRepository;
 import com.mlcdev.realestate.repository.UserRepository;
 import com.mlcdev.realestate.security.OwnershipValidator;
+import com.mlcdev.realestate.specifications.PropertySpecs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,16 +30,22 @@ public class PropertyService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<PropertySummaryDTO> findAllAvailable(Pageable pageable) {
+    public Page<PropertySummaryDTO> findAllAvailable(Pageable pageable, PropertyFilter filter) {
         log.debug("Retrieving available properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<Property> properties = propertyRepository.findAllAvailable(pageable);
+        Page<Property> properties = propertyRepository.findBy(
+                PropertySpecs.isAvailable().and(buildDefaultSpec(filter)),
+                q -> q.page(pageable)
+        );
         return toSummaryPage(properties);
     }
 
     @Transactional(readOnly = true)
-    public Page<PropertySummaryDTO> findAll(Pageable pageable) {
+    public Page<PropertySummaryDTO> findAll(Pageable pageable, PropertyFilter filter) {
         log.debug("Retrieving properties page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<Property> properties = propertyRepository.findAll(pageable);
+        Page<Property> properties = propertyRepository.findBy(
+                buildDefaultSpec(filter),
+                q -> q.page(pageable)
+        );
         return toSummaryPage(properties);
     }
 
@@ -68,17 +76,18 @@ public class PropertyService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PropertySummaryDTO> findBrokerProperties(Pageable pageable, UUID brokerId) {
+    public Page<PropertySummaryDTO> findBrokerProperties(Pageable pageable, PropertyFilter filter,UUID brokerId) {
         log.debug("Retrieving properties from the broker with id: {}", brokerId);
         if (!userRepository.existsById(brokerId)) {
             log.warn("Broker with ID {} doesn't exist", brokerId);
             throw new NotFoundException("Broker with Id: " + brokerId + " doesn't exist");
         }
-        Page<Property> brokerProperties = propertyRepository.findPropertiesByBrokerId(brokerId, pageable);
+        Page<Property> brokerProperties = propertyRepository.findBy(
+                buildDefaultSpec(filter).and(PropertySpecs.brokerIdEquals(brokerId)),
+                q -> q.page(pageable));
+
         log.debug("{} properties retrieved from broker with ID: {}", brokerProperties.getNumberOfElements(), brokerId);
-        List<UUID> propertiesId = brokerProperties.map(Property::getId).toList();
-        Map<UUID, ImageDTO> primaryImages = imageService.findPrimaryImagesForProperties(propertiesId);
-        return brokerProperties.map(property -> PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId())));
+        return toSummaryPage(brokerProperties);
     }
 
     @Transactional
@@ -103,6 +112,21 @@ public class PropertyService {
     }
 
 
+    private PredicateSpecification<Property> buildDefaultSpec(PropertyFilter filter){
+        return PropertySpecs.searchContains(filter.search())
+                .and(PropertySpecs.minPrice(filter.minPrice()))
+                .and(PropertySpecs.maxPrice(filter.maxPrice()))
+                .and(PropertySpecs.minArea(filter.minArea()))
+                .and(PropertySpecs.maxArea(filter.maxArea()))
+                .and(PropertySpecs.transactionTypeEquals(filter.transactionType()))
+                .and(PropertySpecs.categoryEquals(filter.category()))
+                .and(PropertySpecs.minBedrooms(filter.minBedrooms()))
+                .and(PropertySpecs.maxBedrooms(filter.maxBedrooms()))
+                .and(PropertySpecs.minBathrooms(filter.minBathrooms()))
+                .and(PropertySpecs.minSuites(filter.minSuites()))
+                .and(PropertySpecs.minParkingSpots(filter.minParkingSpots()));
+    }
+
     private Property propertyByIdOrElseThrow(UUID id) {
         return propertyRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Property with ID: " + id + " not found"));
@@ -119,6 +143,7 @@ public class PropertyService {
                 PropertyMapper.entityToSummaryDTO(property, primaryImages.get(property.getId()))
         );
     }
+
 
 
 

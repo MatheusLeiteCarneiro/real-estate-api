@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,8 +35,10 @@ public class PropertyController {
 
     @Operation(summary = "List all available properties", description = "Public endpoint - no authentication required")
     @GetMapping
-    public ResponseEntity<Page<PropertySummaryDTO>> findAvailableProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<PropertySummaryDTO> propertyPage = propertyService.findAllAvailable(pageable);
+    public ResponseEntity<Page<PropertySummaryDTO>> findAvailableProperties(
+            @ParameterObject @ModelAttribute PropertyFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PropertySummaryDTO> propertyPage = propertyService.findAllAvailable(pageable, filter);
         return ResponseEntity.ok(propertyPage);
     }
 
@@ -66,6 +69,7 @@ public class PropertyController {
     }
 
     @Operation(summary = "Toggle property available status", description = "Requires the property BROKER or ADMIN role")
+    @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @PatchMapping("/{id}/toggle-active")
     public ResponseEntity<PropertyDetailDTO> toggleAvailable(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
@@ -86,8 +90,10 @@ public class PropertyController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('BROKER')")
     @GetMapping("/all")
-    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable);
+    public ResponseEntity<Page<PropertySummaryDTO>> findAllProperties(
+            @ParameterObject @ModelAttribute PropertyFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PropertySummaryDTO> propertyPage = propertyService.findAll(pageable, filter);
         return ResponseEntity.ok(propertyPage);
     }
 
