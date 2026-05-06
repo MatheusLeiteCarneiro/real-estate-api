@@ -47,8 +47,10 @@ public class UserController {
     @SecurityRequirement(name = "oauth2")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<UserDTO>> findAll(@ParameterObject @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<UserDTO> dtoPage = userService.findAll(pageable);
+    public ResponseEntity<Page<UserDTO>> findAll(
+            @ParameterObject @ModelAttribute UserFilter filter,
+            @ParameterObject @PageableDefault(sort = {"active", "createdAt"}, direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
+        Page<UserDTO> dtoPage = userService.findAll(pageable, filter);
         return ResponseEntity.ok(dtoPage);
     }
 

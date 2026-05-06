@@ -1,8 +1,6 @@
 package com.mlcdev.realestate.service;
 
-import com.mlcdev.realestate.dto.UserCreateDTO;
-import com.mlcdev.realestate.dto.UserDTO;
-import com.mlcdev.realestate.dto.UserPatchDTO;
+import com.mlcdev.realestate.dto.*;
 import com.mlcdev.realestate.entities.Role;
 import com.mlcdev.realestate.entities.User;
 import com.mlcdev.realestate.exception.BusinessRuleException;
@@ -10,10 +8,12 @@ import com.mlcdev.realestate.exception.ConflictException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.UserMapper;
 import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.specifications.UserSpecs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.PredicateSpecification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,9 +37,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAll(Pageable pageable) {
+    public Page<UserDTO> findAll(Pageable pageable, UserFilter filter) {
         log.debug("Retrieving users page {}, size {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<User> userPage = userRepository.findAll(pageable);
+        Page<User> userPage = userRepository.findBy(buildDefaultSpec(filter), q -> q.page(pageable));
         return userPage.map(UserMapper::entityToDTO);
     }
 
@@ -98,6 +98,12 @@ public class UserService {
         log.info("User with ID : {} , active status changed to {}", userId, savedUser.isActive());
         return UserMapper.entityToDTO(savedUser);
 
+    }
+
+    private PredicateSpecification<User> buildDefaultSpec(UserFilter filter){
+        return UserSpecs.usernameContains(filter.username())
+                .and(UserSpecs.hasRole(filter.role()))
+                .and(UserSpecs.isActive(filter.isActive()));
     }
 
     private User findUserById(UUID userId) {
