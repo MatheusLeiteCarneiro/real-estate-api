@@ -47,6 +47,7 @@ public class PropertyMapper {
                 .bathrooms(entity.getBathrooms())
                 .area(entity.getArea())
                 .parkingSpots(entity.getParkingSpots())
+                .neighborhood(entity.getAddress().getNeighborhood())
                 .city(entity.getAddress().getCity())
                 .state(entity.getAddress().getState())
                 .primaryImage(primaryImageDTO)
