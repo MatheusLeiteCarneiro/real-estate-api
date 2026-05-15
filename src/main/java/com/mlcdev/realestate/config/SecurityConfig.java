@@ -1,7 +1,9 @@
 package com.mlcdev.realestate.config;
 
+import com.mlcdev.realestate.entities.Role;
 import com.mlcdev.realestate.entities.User;
 import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.CustomUserDetails;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -29,6 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -38,6 +41,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
@@ -48,11 +52,15 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -92,23 +100,9 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) {
 
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-                new OAuth2AuthorizationServerConfigurer();
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
-        http
-                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                .with(authorizationServerConfigurer, configurer ->
-                        configurer.oidc(Customizer.withDefaults())
-                )
-                .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated()
-                )
-                .exceptionHandling(exceptions -> exceptions
-                        .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint("/login"),
-                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        )
-                );
+        http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher()).with(authorizationServerConfigurer, configurer -> configurer.oidc(Customizer.withDefaults())).authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated()).exceptionHandling(exceptions -> exceptions.defaultAuthenticationEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"), new MediaTypeRequestMatcher(MediaType.TEXT_HTML)));
 
         return http.build();
     }
@@ -116,38 +110,40 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/v1/properties/**").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
-                        .jwkSetUri(authorizationServerUrl + "/oauth2/jwks")
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .formLogin(Customizer.withDefaults())
-                .logout(logout -> logout.logoutSuccessUrl(logoutRedirectUrl).permitAll())
-        ;
+        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/login").permitAll().requestMatchers(HttpMethod.GET, "/v1/properties/**").permitAll().requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll().anyRequest().authenticated()).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri(authorizationServerUrl + "/oauth2/jwks").jwtAuthenticationConverter(jwtAuthenticationConverter()))).formLogin(Customizer.withDefaults()).logout(logout -> logout.logoutSuccessUrl(logoutRedirectUrl).permitAll());
 
         return http.build();
     }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository){
-        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+    public OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
+
+        JdbcOAuth2AuthorizationService service = new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
+
+        ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
+
+        BasicPolymorphicTypeValidator.Builder typeValidatorBuilder = BasicPolymorphicTypeValidator.builder().allowIfSubType(CustomUserDetails.class).allowIfSubType(Role.class);
+
+        JsonMapper.Builder jsonMapperBuilder = JsonMapper.builder();
+
+        List<JacksonModule> securityModules = SecurityJacksonModules.getModules(classLoader, typeValidatorBuilder);
+
+        jsonMapperBuilder.addModules(securityModules);
+        jsonMapperBuilder.addModule(new OAuth2AuthorizationServerJacksonModule());
+
+        JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper rowMapper = new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper(registeredClientRepository, jsonMapperBuilder.build());
+
+        service.setAuthorizationRowMapper(rowMapper);
+
+        return service;
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "User not found: " + username));
+        return username -> {
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            return CustomUserDetails.builder().id(user.getId()).username(user.getUsername()).password(user.getPassword()).active(user.isActive()).authorities(new HashSet<>(user.getAuthorities())).build();
+        };
     }
 
     @Bean
@@ -155,18 +151,12 @@ public class SecurityConfig {
         return context -> {
             if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
                 Authentication principal = context.getPrincipal();
-                if (!(principal.getPrincipal() instanceof User user)) {
+                if (!(principal.getPrincipal() instanceof CustomUserDetails user)) {
                     return;
                 }
-                List<String> authorities = user.getAuthorities()
-                        .stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList();
+                List<String> authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
-                context.getClaims()
-                        .subject(user.getId().toString())
-                        .claim("authorities", authorities)
-                        .claim("username", user.getUsername());
+                context.getClaims().subject(user.getId().toString()).claim("authorities", authorities).claim("username", user.getUsername());
             }
         };
     }
@@ -184,8 +174,7 @@ public class SecurityConfig {
     @Profile("dev")
     @Bean
     public RegisteredClientRepository devRegisteredClientRepository() {
-        return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri)
-                , buildClient(swaggerClientId, swaggerRedirectUri));
+        return new InMemoryRegisteredClientRepository(buildClient(postmanClientId, postmanRedirectUri), buildClient(swaggerClientId, swaggerRedirectUri));
     }
 
     @Profile("prod")
@@ -196,10 +185,7 @@ public class SecurityConfig {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        String keyId = Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(publicKey.getEncoded())
-                .substring(0, 16);
+        String keyId = Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey.getEncoded()).substring(0, 16);
         RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(keyId).build();
         return new ImmutableJWKSet<>(new JWKSet(rsaKey));
     }
@@ -216,31 +202,11 @@ public class SecurityConfig {
 
     @Bean
     public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withDefaultRolePrefix()
-                .role("ADMIN").implies("BROKER")
-                .build();
+        return RoleHierarchyImpl.withDefaultRolePrefix().role("ADMIN").implies("BROKER").build();
     }
 
 
     private RegisteredClient buildClient(String clientId, String clientRedirectUri) {
-        return RegisteredClient
-                .withId(UUID.nameUUIDFromBytes(clientId.getBytes()).toString())
-                .clientId(clientId)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri(clientRedirectUri)
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .clientSettings(ClientSettings.builder()
-                        .requireProofKey(true)
-                        .requireAuthorizationConsent(false)
-                        .build())
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofSeconds(accessTokenSecondsDuration))
-                        .refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenSecondsDuration))
-                        .reuseRefreshTokens(false)
-                        .build())
-                .build();
+        return RegisteredClient.withId(UUID.nameUUIDFromBytes(clientId.getBytes()).toString()).clientId(clientId).clientAuthenticationMethod(ClientAuthenticationMethod.NONE).authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN).redirectUri(clientRedirectUri).scope(OidcScopes.OPENID).scope(OidcScopes.PROFILE).clientSettings(ClientSettings.builder().requireProofKey(true).requireAuthorizationConsent(false).build()).tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofSeconds(accessTokenSecondsDuration)).refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenSecondsDuration)).reuseRefreshTokens(false).build()).build();
     }
 }
