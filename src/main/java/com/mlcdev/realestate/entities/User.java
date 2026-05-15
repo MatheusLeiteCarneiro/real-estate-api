@@ -5,11 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -20,9 +17,10 @@ import java.util.UUID;
 @Builder
 
 @Getter
+@Setter
 @Entity
 @Table(name = "tb_user")
-public class User implements UserDetails {
+public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -67,15 +65,5 @@ public class User implements UserDetails {
 
     public void addRole(Role role) {
         this.authorities.add(role);
-    }
-
-    @Override
-    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return active;
     }
 }

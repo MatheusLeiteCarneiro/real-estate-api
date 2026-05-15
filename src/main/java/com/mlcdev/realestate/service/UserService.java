@@ -8,6 +8,7 @@ import com.mlcdev.realestate.exception.ConflictException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.mapper.UserMapper;
 import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.OAuth2AuthorizationCleanupService;
 import com.mlcdev.realestate.specifications.UserSpecs;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class UserService {
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final OAuth2AuthorizationCleanupService oAuth2AuthorizationCleanupService;
+
 
     @Transactional(readOnly = true)
     public UserDTO findById(UUID userId) {
@@ -95,6 +98,11 @@ public class UserService {
         }
         user.toggleActive();
         User savedUser = userRepository.save(user);
+
+        if (!savedUser.isActive()){
+            oAuth2AuthorizationCleanupService.invalidateUserTokens(user.getUsername());
+        }
+
         log.info("User with ID : {} , active status changed to {}", userId, savedUser.isActive());
         return UserMapper.entityToDTO(savedUser);
 
