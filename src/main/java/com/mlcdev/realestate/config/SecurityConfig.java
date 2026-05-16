@@ -115,7 +115,7 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
-        http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/login").permitAll().requestMatchers(HttpMethod.GET, "/v1/properties/**").permitAll().requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll().anyRequest().authenticated()).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri(authorizationServerUrl + "/oauth2/jwks").jwtAuthenticationConverter(jwtAuthenticationConverter()))).formLogin(Customizer.withDefaults()).logout(logout -> logout.logoutSuccessUrl(logoutRedirectUrl).permitAll());
+        http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.POST, "/login").permitAll().requestMatchers(HttpMethod.GET, "/v1/properties/**").permitAll().requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll().requestMatchers(HttpMethod.GET, "/actuator/health").permitAll().anyRequest().authenticated()).oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri(authorizationServerUrl + "/oauth2/jwks").jwtAuthenticationConverter(jwtAuthenticationConverter()))).formLogin(Customizer.withDefaults()).logout(logout -> logout.logoutSuccessUrl(logoutRedirectUrl).permitAll());
 
         return http.build();
     }
