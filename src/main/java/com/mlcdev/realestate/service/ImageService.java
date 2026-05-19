@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @Service
 public class ImageService {
 
-    private static final long MAX_FILE_SIZE = 10L * 1024L * 1024L;
     private final FileStorageService fileStorageService;
     private final ImageRepository imageRepository;
     private final PropertyRepository propertyRepository;
@@ -57,10 +56,6 @@ public class ImageService {
             if (contentType == null || !contentType.startsWith("image/")) {
                 log.warn("Invalid file type uploaded: {}", contentType);
                 throw new BusinessRuleException("Only image files are allowed");
-            }
-            if (file.getSize() > MAX_FILE_SIZE) {
-                log.warn("File size exceeds limit: {} bytes", file.getSize());
-                throw new BusinessRuleException("File size exceeds 10MB limit");
             }
         }
 

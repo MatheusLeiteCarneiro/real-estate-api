@@ -5,6 +5,7 @@ import com.mlcdev.realestate.exception.response.ApiError;
 import com.mlcdev.realestate.exception.response.ValidationApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,11 +13,18 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private String maxFileSize;
+
+    @Value("${spring.servlet.multipart.max-request-size}")
+    private String maxRequestSize;
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(NotFoundException exception, HttpServletRequest request) {
@@ -76,6 +84,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleAuthorization(HttpServletRequest request) {
         HttpStatus status = HttpStatus.FORBIDDEN;
         ApiError error = new ApiError(status.value(), "Insufficient Permission", request.getRequestURI());
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSizeExceeded(HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONTENT_TOO_LARGE;
+        ApiError error = new ApiError(status.value(), "Uploaded file or request exceeds the maximum allowed size. Max file size: " + maxFileSize + ". Max request size: " + maxRequestSize, request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
 
