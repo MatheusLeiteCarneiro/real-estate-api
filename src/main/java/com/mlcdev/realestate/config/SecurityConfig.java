@@ -1,15 +1,16 @@
 package com.mlcdev.realestate.config;
 
-import com.mlcdev.realestate.entities.Role;
-import com.mlcdev.realestate.entities.User;
-import com.mlcdev.realestate.repository.UserRepository;
-import com.mlcdev.realestate.security.CustomUserDetails;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,18 +55,20 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.mlcdev.realestate.entities.Role;
+import com.mlcdev.realestate.entities.User;
+import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.CustomUserDetails;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
@@ -159,8 +162,7 @@ public class SecurityConfig {
                 if (!(principal.getPrincipal() instanceof CustomUserDetails user)) {
                     return;
                 }
-                List<String> authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-
+                List<String> authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toCollection(ArrayList::new));
                 context.getClaims().subject(user.getId().toString()).claim("authorities", authorities).claim("username", user.getUsername());
             }
         };
