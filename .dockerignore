@@ -3,4 +3,10 @@ target
 .idea
 *.iml
 .env
+.env.*
+!.env.example
+secrets
+secrets/
+*.key
+*.pub
 README.md
