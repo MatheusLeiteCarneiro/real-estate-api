@@ -10,3 +10,5 @@ secrets/
 *.key
 *.pub
 README.md
+real-estate.postman_collection.json
+real-estate.api.postman_environment.json
