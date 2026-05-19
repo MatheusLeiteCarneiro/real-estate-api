@@ -30,7 +30,7 @@
       },
       {
         "key": "grant_type",
-        "value": "authorization_code",
+        "value": "authorization_code_with_pkce",
         "type": "string"
       },
       {
