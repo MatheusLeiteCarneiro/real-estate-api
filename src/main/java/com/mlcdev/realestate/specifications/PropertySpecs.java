@@ -72,14 +72,14 @@ public class PropertySpecs {
     public static PredicateSpecification<Property> minBedrooms(Integer minBedrooms){
         return (root, criteriaBuilder) -> {
             if (ObjectUtils.isEmpty(minBedrooms)){return null;}
-            return criteriaBuilder.greaterThanOrEqualTo(root.get("area"), minBedrooms);
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("bedrooms"), minBedrooms);
         };
     }
 
     public static PredicateSpecification<Property> maxBedrooms(Integer maxBedrooms){
         return (root, criteriaBuilder) -> {
             if (ObjectUtils.isEmpty(maxBedrooms)){return null;}
-            return criteriaBuilder.lessThanOrEqualTo(root.get("area"), maxBedrooms);
+            return criteriaBuilder.lessThanOrEqualTo(root.get("bedrooms"), maxBedrooms);
         };
     }
 

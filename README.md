@@ -256,7 +256,7 @@ cp .env.example .env
 Update the values in `.env` according to your local environment. At minimum, configure PostgreSQL, Cloudinary, admin credentials, and the authorization server URL.
 
 ```env
-ACTIVE_PROFILE=dev
+SPRING_PROFILES_ACTIVE=dev
 POSTGRES_DB=realestate_db
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=change-me
@@ -365,7 +365,7 @@ Important variables:
 
 | Variable                     | Purpose                                              |
 |------------------------------|------------------------------------------------------|
-| `ACTIVE_PROFILE`             | Spring profile, usually `dev` locally                |
+| `SPRING_PROFILES_ACTIVE`     | Spring profile, usually `dev` locally                |
 | `CLOUDINARY_URL`             | Cloudinary connection URL                            |
 | `PROPERTY_IMAGE_FOLDER`      | Cloudinary folder for property images                |
 | `MAX_FILE_SIZE`              | Maximum size allowed for each uploaded file          |
