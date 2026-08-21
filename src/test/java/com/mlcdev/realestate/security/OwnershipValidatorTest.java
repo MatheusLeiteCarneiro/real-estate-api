@@ -2,10 +2,10 @@ package com.mlcdev.realestate.security;
 
 import com.mlcdev.realestate.entities.Property;
 import com.mlcdev.realestate.entities.User;
-import com.mlcdev.realestate.exception.BusinessRuleException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.UUID;
 
@@ -35,14 +35,14 @@ class OwnershipValidatorTest {
     }
 
     @Test
-    @DisplayName("Should throw BusinessRuleException when broker is not owner")
-    void propertyVerifyBrokerPermissionShouldThrowBusinessRuleExceptionWhenBrokerIsNotOwner() {
+    @DisplayName("Should throw AccessDeniedException when broker is not owner")
+    void propertyVerifyBrokerPermissionShouldThrowAccessDeniedExceptionWhenBrokerIsNotOwner() {
         UUID ownerBrokerId = UUID.randomUUID();
         UUID anotherBrokerId = UUID.randomUUID();
         Property property = buildPropertyWithBroker(ownerBrokerId);
 
-        BusinessRuleException exception = Assertions.assertThrows(
-                BusinessRuleException.class,
+        AccessDeniedException exception = Assertions.assertThrows(
+                AccessDeniedException.class,
                 () -> OwnershipValidator.propertyVerifyBrokerPermission(property, anotherBrokerId, false)
         );
 

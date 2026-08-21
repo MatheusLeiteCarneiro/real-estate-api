@@ -6,7 +6,6 @@ import com.mlcdev.realestate.dto.PropertyDetailDTO;
 import com.mlcdev.realestate.dto.PropertyFilter;
 import com.mlcdev.realestate.dto.PropertyPatchDTO;
 import com.mlcdev.realestate.entities.*;
-import com.mlcdev.realestate.exception.BusinessRuleException;
 import com.mlcdev.realestate.exception.NotFoundException;
 import com.mlcdev.realestate.repository.PropertyRepository;
 import com.mlcdev.realestate.repository.UserRepository;
@@ -22,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.PredicateSpecification;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -315,8 +315,8 @@ public class PropertyServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw BusinessRuleException when broker is not property owner on update")
-        void updateShouldThrowBusinessRuleExceptionWhenBrokerIsNotOwner() {
+        @DisplayName("Should throw AccessDeniedException when broker is not property owner on update")
+        void updateShouldThrowAccessDeniedExceptionWhenBrokerIsNotOwner() {
             UUID propertyId = UUID.randomUUID();
             UUID ownerBrokerId = UUID.randomUUID();
             UUID anotherBrokerId = UUID.randomUUID();
@@ -330,8 +330,8 @@ public class PropertyServiceTest {
 
             when(propertyRepository.findById(propertyId)).thenReturn(Optional.of(property));
 
-            BusinessRuleException exception = Assertions.assertThrows(
-                    BusinessRuleException.class,
+            AccessDeniedException exception = Assertions.assertThrows(
+                    AccessDeniedException.class,
                     () -> propertyService.update(propertyId, patchDTO, anotherBrokerId, false)
             );
 
@@ -385,8 +385,8 @@ public class PropertyServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw BusinessRuleException when broker is not property owner on toggle availability")
-        void toggleAvailableShouldThrowBusinessRuleExceptionWhenBrokerIsNotOwner() {
+        @DisplayName("Should throw AccessDeniedException when broker is not property owner on toggle availability")
+        void toggleAvailableShouldThrowAccessDeniedExceptionWhenBrokerIsNotOwner() {
             UUID propertyId = UUID.randomUUID();
             UUID ownerBrokerId = UUID.randomUUID();
             UUID anotherBrokerId = UUID.randomUUID();
@@ -399,8 +399,8 @@ public class PropertyServiceTest {
 
             when(propertyRepository.findById(propertyId)).thenReturn(Optional.of(property));
 
-            BusinessRuleException exception = Assertions.assertThrows(
-                    BusinessRuleException.class,
+            AccessDeniedException exception = Assertions.assertThrows(
+                    AccessDeniedException.class,
                     () -> propertyService.toggleAvailable(propertyId, anotherBrokerId, false)
             );
 
@@ -432,8 +432,8 @@ public class PropertyServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw BusinessRuleException when broker is not property owner on delete")
-        void deleteShouldThrowBusinessRuleExceptionWhenBrokerIsNotOwner() {
+        @DisplayName("Should throw AccessDeniedException when broker is not property owner on delete")
+        void deleteShouldThrowAccessDeniedExceptionWhenBrokerIsNotOwner() {
             UUID propertyId = UUID.randomUUID();
             UUID ownerBrokerId = UUID.randomUUID();
             UUID anotherBrokerId = UUID.randomUUID();
@@ -445,8 +445,8 @@ public class PropertyServiceTest {
 
             when(propertyRepository.findById(propertyId)).thenReturn(Optional.of(property));
 
-            BusinessRuleException exception = Assertions.assertThrows(
-                    BusinessRuleException.class,
+            AccessDeniedException exception = Assertions.assertThrows(
+                    AccessDeniedException.class,
                     () -> propertyService.delete(propertyId, anotherBrokerId, false)
             );
 
