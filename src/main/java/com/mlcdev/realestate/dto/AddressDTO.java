@@ -1,7 +1,5 @@
 package com.mlcdev.realestate.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mlcdev.realestate.util.StateDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,9 +40,8 @@ public class AddressDTO {
     private String city;
 
     @NotNull(message = "This field should not be left null")
-    @Size(min = 2, max = 2, message = "State must be a 2-character abbreviation")
-    @JsonDeserialize(using = StateDeserializer.class)
-    @Schema(description = "Two-letter state abbreviation.", example = "CA", minLength = 2, maxLength = 2, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Pattern(regexp = "^[a-zA-Z]{2}$", message = "State must contain 2 letters")
+    @Schema(description = "Two-letter state abbreviation.", example = "SP", minLength = 2, maxLength = 2, requiredMode = Schema.RequiredMode.REQUIRED)
     private String state;
 
     @NotNull(message = "This field should not be left null")

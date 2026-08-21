@@ -1,7 +1,5 @@
 package com.mlcdev.realestate.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mlcdev.realestate.util.StateDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -35,9 +33,8 @@ public class AddressPatchDTO {
     @Schema(description = "New city name.", example = "Updated City", maxLength = 255)
     private String city;
 
-    @Size(min = 2, max = 2, message = "State must be a 2-character abbreviation")
-    @JsonDeserialize(using = StateDeserializer.class)
-    @Schema(description = "New two-letter state abbreviation.", example = "NY", minLength = 2, maxLength = 2)
+    @Pattern(regexp = "^[a-zA-Z]{2}$", message = "State must contain 2 letters")
+    @Schema(description = "New two-letter state abbreviation.", example = "SP", minLength = 2, maxLength = 2)
     private String state;
 
     @Pattern(regexp = "^(\\d{8}|\\d{5}-\\d{3})$", message = "Invalid zipcode. Use 12345678 or 12345-678")
