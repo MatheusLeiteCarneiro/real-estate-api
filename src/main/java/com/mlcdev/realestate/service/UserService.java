@@ -57,7 +57,7 @@ public class UserService {
 
         user.addRole(Role.ROLE_BROKER);
 
-        User createdUser = userRepository.save(user);
+        User createdUser = userRepository.saveAndFlush(user);
         log.info("User successfully created with ID: {}", createdUser.getId());
         return UserMapper.entityToDTO(createdUser);
     }
