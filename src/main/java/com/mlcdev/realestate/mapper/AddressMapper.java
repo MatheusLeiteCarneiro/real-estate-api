@@ -4,6 +4,8 @@ import com.mlcdev.realestate.dto.AddressDTO;
 import com.mlcdev.realestate.dto.AddressPatchDTO;
 import com.mlcdev.realestate.entities.Address;
 
+import java.util.Locale;
+
 public class AddressMapper {
 
     private AddressMapper() {
@@ -29,8 +31,8 @@ public class AddressMapper {
                 .complement(dto.getComplement())
                 .neighborhood(dto.getNeighborhood())
                 .city(dto.getCity())
-                .state(dto.getState())
-                .zipCode(dto.getZipCode())
+                .state(normalizeState(dto.getState()))
+                .zipCode(cleanZipCode(dto.getZipCode()))
                 .build();
     }
 
@@ -51,11 +53,19 @@ public class AddressMapper {
             entity.setCity(dto.getCity());
         }
         if (dto.getState() != null && !dto.getState().isBlank()) {
-            entity.setState(dto.getState());
+            entity.setState(normalizeState(dto.getState()));
         }
         if (dto.getZipCode() != null && !dto.getZipCode().isBlank()) {
-            entity.setZipCode(dto.getZipCode());
+            entity.setZipCode(cleanZipCode(dto.getZipCode()));
         }
         return entity;
+    }
+
+    private static String cleanZipCode(String zipCode) {
+        return zipCode.replace("-", "");
+    }
+
+    private static String normalizeState(String state){
+        return state.toUpperCase(Locale.ROOT);
     }
 }

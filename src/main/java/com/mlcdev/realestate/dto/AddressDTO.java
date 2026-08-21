@@ -1,11 +1,9 @@
 package com.mlcdev.realestate.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mlcdev.realestate.util.StateDeserializer;
-import com.mlcdev.realestate.util.ZipCodeDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -42,15 +40,13 @@ public class AddressDTO {
     private String city;
 
     @NotNull(message = "This field should not be left null")
-    @Size(min = 2, max = 2, message = "State must be a 2-character abbreviation")
-    @JsonDeserialize(using = StateDeserializer.class)
-    @Schema(description = "Two-letter state abbreviation.", example = "CA", minLength = 2, maxLength = 2, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Pattern(regexp = "^[a-zA-Z]{2}$", message = "State must contain 2 letters")
+    @Schema(description = "Two-letter state abbreviation.", example = "SP", minLength = 2, maxLength = 2, requiredMode = Schema.RequiredMode.REQUIRED)
     private String state;
 
     @NotNull(message = "This field should not be left null")
-    @Size(min = 8, max = 8, message = "Unavailable ZipCode")
-    @JsonDeserialize(using = ZipCodeDeserializer.class)
-    @Schema(description = "Eight-digit ZIP code without separators.", example = "90000000", minLength = 8, maxLength = 8, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Pattern(regexp = "^(\\d{8}|\\d{5}-\\d{3})$", message = "Invalid zipcode. Use 12345678 or 12345-678")
+    @Schema(description = "ZIP code can use 12345678 or 12345-678 formats.", example = "12345678", minLength = 8, maxLength = 9, requiredMode = Schema.RequiredMode.REQUIRED)
     private String zipCode;
 
 
