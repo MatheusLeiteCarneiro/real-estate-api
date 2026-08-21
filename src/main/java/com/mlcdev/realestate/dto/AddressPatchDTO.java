@@ -15,19 +15,24 @@ import lombok.*;
 @Schema(description = "Partial address payload. Only provided fields are updated.")
 public class AddressPatchDTO {
 
-    @Schema(description = "New street name.", example = "Updated Main Street")
+    @Size(max = 255, message = "Street must not exceed 255 characters")
+    @Schema(description = "New street name.", example = "Updated Main Street", maxLength = 255)
     private String street;
 
-    @Schema(description = "New street number.", example = "200")
+    @Size(max = 20, message = "Street number must not exceed 20 characters")
+    @Schema(description = "New street number.", example = "200", maxLength = 20)
     private String number;
 
-    @Schema(description = "New additional address information.", example = "Suite 5")
+    @Size(max = 255, message = "Complement must not exceed 255 characters")
+    @Schema(description = "New additional address information.", example = "Suite 5", maxLength = 255)
     private String complement;
 
-    @Schema(description = "New neighborhood name.", example = "Central District")
+    @Size(max = 255, message = "Neighborhood must not exceed 255 characters")
+    @Schema(description = "New neighborhood name.", example = "Central District", maxLength = 255)
     private String neighborhood;
 
-    @Schema(description = "New city name.", example = "Updated City")
+    @Size(max = 255, message = "City must not exceed 255 characters")
+    @Schema(description = "New city name.", example = "Updated City", maxLength = 255)
     private String city;
 
     @Size(min = 2, max = 2, message = "State must be a 2-character abbreviation")

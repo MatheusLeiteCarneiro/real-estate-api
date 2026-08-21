@@ -18,22 +18,27 @@ import lombok.*;
 public class AddressDTO {
 
     @NotBlank(message = "This field should not be left blank")
-    @Schema(description = "Street name.", example = "Main Street", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 255, message = "Street must not exceed 255 characters")
+    @Schema(description = "Street name.", example = "Main Street", maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String street;
 
     @NotBlank(message = "This field should not be left blank")
-    @Schema(description = "Street number.", example = "100", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 20, message = "Street number must not exceed 20 characters")
+    @Schema(description = "Street number.", example = "100", maxLength = 20, requiredMode = Schema.RequiredMode.REQUIRED)
     private String number;
 
-    @Schema(description = "Additional address information.", example = "Apartment 12")
+    @Size(max = 255, message = "Complement must not exceed 255 characters")
+    @Schema(description = "Additional address information.", example = "Apartment 12", maxLength = 255)
     private String complement;
 
     @NotBlank(message = "This field should not be left blank")
-    @Schema(description = "Neighborhood name.", example = "Downtown", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 255, message = "Neighborhood must not exceed 255 characters")
+    @Schema(description = "Neighborhood name.", example = "Downtown", maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String neighborhood;
 
     @NotBlank(message = "This field should not be left blank")
-    @Schema(description = "City name.", example = "Sample City", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(max = 255, message = "City must not exceed 255 characters")
+    @Schema(description = "City name.", example = "Sample City", maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String city;
 
     @NotNull(message = "This field should not be left null")
