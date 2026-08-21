@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 public class UserCreateDTO {
 
     @NotBlank(message = "Username can't be blank")
-    @Size(min = 3, message = "The username must have at least 3 characters")
-    @Schema(description = "Unique username for the user account.", example = "broker.user", minLength = 3, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Schema(description = "Unique username for the user account.", example = "broker.user", minLength = 3, maxLength = 50, requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
 
     @NotBlank(message = "Password required")

@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 public class PropertyCreateDTO {
 
     @NotBlank(message = "This field should not be left blank")
-    @Size(min = 5, message = "The Title should contain at least 5 characters")
-    @Schema(description = "Public title for the property listing.", example = "Modern family house", minLength = 5, requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 5, max = 255, message = "Title must be between 5 and 255 characters")
+    @Schema(description = "Public title for the property listing.", example = "Modern family house", minLength = 5, maxLength = 255, requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 
     @NotBlank(message = "This field should not be left blank")

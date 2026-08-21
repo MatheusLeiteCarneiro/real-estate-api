@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Schema(name = "UserPatchRequest", description = "Partial request body used to update a user. Only provided fields are updated.")
 public class UserPatchDTO {
 
-    @Size(min = 3, message = "The username must have at least 3 characters")
-    @Schema(description = "New unique username for the user account.", example = "updated.broker", minLength = 3)
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Schema(description = "New unique username for the user account.", example = "updated.broker", minLength = 3, maxLength = 50)
     private String username;
 
     @StrongPassword

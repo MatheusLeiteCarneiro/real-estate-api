@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 @Schema(name = "PropertyPatchRequest", description = "Partial request body used to update a property listing. Only provided fields are updated.")
 public class PropertyPatchDTO {
 
-    @Size(min = 5, message = "The Title should contain at least 5 characters")
-    @Schema(description = "New public title for the property listing.", example = "Updated family house", minLength = 5)
+    @Size(min = 5, max = 255, message = "Title must be between 5 and 255 characters")
+    @Schema(description = "New public title for the property listing.", example = "Updated family house", minLength = 5, maxLength = 255)
     private String title;
 
     @Size(min = 10, message = "The description should contain at least 10 characters")
