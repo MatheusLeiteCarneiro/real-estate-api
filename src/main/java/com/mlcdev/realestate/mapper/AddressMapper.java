@@ -30,7 +30,7 @@ public class AddressMapper {
                 .neighborhood(dto.getNeighborhood())
                 .city(dto.getCity())
                 .state(dto.getState())
-                .zipCode(dto.getZipCode())
+                .zipCode(cleanZipCode(dto.getZipCode()))
                 .build();
     }
 
@@ -54,8 +54,12 @@ public class AddressMapper {
             entity.setState(dto.getState());
         }
         if (dto.getZipCode() != null && !dto.getZipCode().isBlank()) {
-            entity.setZipCode(dto.getZipCode());
+            entity.setZipCode(cleanZipCode(dto.getZipCode()));
         }
         return entity;
+    }
+
+    private static String cleanZipCode(String zipCode) {
+        return zipCode.replace("-", "");
     }
 }

@@ -2,8 +2,8 @@ package com.mlcdev.realestate.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mlcdev.realestate.util.StateDeserializer;
-import com.mlcdev.realestate.util.ZipCodeDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -40,9 +40,8 @@ public class AddressPatchDTO {
     @Schema(description = "New two-letter state abbreviation.", example = "NY", minLength = 2, maxLength = 2)
     private String state;
 
-    @Size(min = 8, max = 8, message = "Unavailable ZipCode")
-    @JsonDeserialize(using = ZipCodeDeserializer.class)
-    @Schema(description = "New eight-digit ZIP code without separators.", example = "10000000", minLength = 8, maxLength = 8)
+    @Pattern(regexp = "^(\\d{8}|\\d{5}-\\d{3})$", message = "Invalid zipcode. Use 12345678 or 12345-678")
+    @Schema(description = "ZIP code can use 12345678 or 12345-678 formats.", example = "12345678", minLength = 8, maxLength = 9)
     private String zipCode;
 
 
