@@ -5,8 +5,10 @@ import com.mlcdev.realestate.dto.UserDTO;
 import com.mlcdev.realestate.dto.UserPatchDTO;
 import com.mlcdev.realestate.entities.Role;
 import com.mlcdev.realestate.entities.User;
+import com.mlcdev.realestate.exception.BusinessRuleException;
 import com.mlcdev.realestate.exception.ConflictException;
 import com.mlcdev.realestate.repository.UserRepository;
+import com.mlcdev.realestate.security.OAuth2AuthorizationCleanupService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,11 +21,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -38,6 +42,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private OAuth2AuthorizationCleanupService oAuth2AuthorizationCleanupService;
 
     @InjectMocks
     private UserService userService;
@@ -197,6 +204,89 @@ public class UserServiceTest {
 
             }
 
+
+    }
+
+    @Nested
+    @DisplayName("Toggle user status")
+    class ToggleActiveTests{
+
+        @Test
+        @DisplayName("Should prevent admin deactivation")
+        void toggleActiveShouldThrowBusinessRuleExceptionWhenUserIsAdmin(){
+            UUID generatedId = UUID.randomUUID();
+            User user = User.builder()
+                    .id(generatedId)
+                    .username("username")
+                    .password("encoded-password")
+                    .authorities(Set.of(Role.ROLE_BROKER, Role.ROLE_ADMIN))
+                    .active(true)
+                    .build();
+            when(userRepository.findById(generatedId)).thenReturn(Optional.of(user));
+
+            assertThatThrownBy(() -> userService.toggleActive(generatedId))
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessage("Admin user cannot be deactivated");
+
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should invalidate tokens when broker is deactivated")
+        void toggleActiveShouldInvalidateAuthorizationsWhenBrokerIsDeactivated(){
+            UUID generatedId = UUID.randomUUID();
+            String username = "username";
+            User user = User.builder()
+                    .id(generatedId)
+                    .username(username)
+                    .password("encoded-password")
+                    .authorities(Set.of(Role.ROLE_BROKER))
+                    .active(true)
+                    .build();
+
+            when(userRepository.findById(generatedId)).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            doNothing().when(oAuth2AuthorizationCleanupService).invalidateUserTokens(username);
+
+
+            UserDTO result = userService.toggleActive(generatedId);
+
+            verify(userRepository).findById(generatedId);
+            verify(userRepository).save(any(User.class));
+            verify(oAuth2AuthorizationCleanupService).invalidateUserTokens(username);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(generatedId);
+            assertThat(result.isActive()).isFalse();
+        }
+
+        @Test
+        @DisplayName("Should keep tokens when broker is activated")
+        void toggleActiveShouldNotInvalidateAuthorizationsWhenBrokerIsActivated(){
+            UUID generatedId = UUID.randomUUID();
+            String username = "username";
+            User user = User.builder()
+                    .id(generatedId)
+                    .username(username)
+                    .password("encoded-password")
+                    .authorities(Set.of(Role.ROLE_BROKER))
+                    .active(false)
+                    .build();
+
+            when(userRepository.findById(generatedId)).thenReturn(Optional.of(user));
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+
+            UserDTO result = userService.toggleActive(generatedId);
+
+            verify(userRepository).findById(generatedId);
+            verify(userRepository).save(any(User.class));
+            verify(oAuth2AuthorizationCleanupService, never()).invalidateUserTokens(username);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(generatedId);
+            assertThat(result.isActive()).isTrue();
+        }
 
     }
 
