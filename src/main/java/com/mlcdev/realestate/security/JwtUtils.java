@@ -19,4 +19,13 @@ public class JwtUtils {
         List<String> authorities = jwt.getClaimAsStringList("authorities");
         return authorities != null && authorities.contains(Role.ROLE_ADMIN.name());
     }
+
+    public static boolean isBroker(Jwt jwt) {
+        List<String> authorities = jwt.getClaimAsStringList("authorities");
+        return authorities != null && authorities.contains(Role.ROLE_BROKER.name());
+    }
+
+    public static boolean isBrokerOrAdmin(Jwt jwt){
+        return jwt != null && (JwtUtils.isAdmin(jwt) || JwtUtils.isBroker(jwt));
+    }
 }

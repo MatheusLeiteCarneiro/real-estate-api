@@ -50,9 +50,13 @@ public class PropertyService {
     }
 
     @Transactional(readOnly = true)
-    public PropertyDetailDTO findById(UUID id) {
+    public PropertyDetailDTO findById(UUID id, boolean canViewUnavailable) {
         log.debug("Retrieving property with ID: {}", id);
-        return PropertyMapper.entityToDetailDTO(propertyByIdOrElseThrow(id));
+        Property property = propertyByIdOrElseThrow(id);
+        if(!property.isAvailable() && !canViewUnavailable){
+            throw new NotFoundException("Property with ID: " + id + " not found");
+        }
+        return PropertyMapper.entityToDetailDTO(property);
     }
 
     @Transactional
