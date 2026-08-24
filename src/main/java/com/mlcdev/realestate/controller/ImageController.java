@@ -28,17 +28,17 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @Operation(summary = "List all images for a property", description = "Public endpoint - no authentication required")
+    @Operation(summary = "List all images for a property", description = "Public for available properties. BROKER or ADMIN authentication is required for unavailable properties.")
     @GetMapping
-    public ResponseEntity<List<ImageDTO>> findAllImages(@PathVariable UUID propertyId) {
-        List<ImageDTO> images = imageService.findAllImages(propertyId);
+    public ResponseEntity<List<ImageDTO>> findAllImages(@PathVariable UUID propertyId, @AuthenticationPrincipal Jwt jwt) {
+        List<ImageDTO> images = imageService.findAllImages(propertyId, JwtUtils.isBrokerOrAdmin(jwt));
         return ResponseEntity.ok(images);
     }
 
-    @Operation(summary = "Find primary image for a property", description = "Public endpoint - no authentication required")
+    @Operation(summary = "Find primary image for a property", description = "Public for available properties. BROKER or ADMIN authentication is required for unavailable properties.")
     @GetMapping(value = "/primary")
-    public ResponseEntity<ImageDTO> findPrimaryImage(@PathVariable UUID propertyId) {
-        ImageDTO dto = imageService.findPrimaryImage(propertyId);
+    public ResponseEntity<ImageDTO> findPrimaryImage(@PathVariable UUID propertyId,  @AuthenticationPrincipal Jwt jwt) {
+        ImageDTO dto = imageService.findPrimaryImage(propertyId, JwtUtils.isBrokerOrAdmin(jwt));
         return ResponseEntity.ok(dto);
     }
 
@@ -72,6 +72,5 @@ public class ImageController {
         imageService.deleteImage(propertyId, imageId, JwtUtils.getUserId(jwt), JwtUtils.isAdmin(jwt));
         return ResponseEntity.noContent().build();
     }
-
 
 }

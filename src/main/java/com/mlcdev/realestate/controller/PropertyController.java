@@ -42,10 +42,10 @@ public class PropertyController {
         return ResponseEntity.ok(propertyPage);
     }
 
-    @Operation(summary = "Find property by ID", description = "Public endpoint - no authentication required")
+    @Operation(summary = "Find property by ID", description = "Public for available properties. BROKER or ADMIN authentication is required for unavailable properties.")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id) {
-        PropertyDetailDTO propertyDTO = propertyService.findById(id);
+    public ResponseEntity<PropertyDetailDTO> findPropertyById(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        PropertyDetailDTO propertyDTO = propertyService.findById(id, JwtUtils.isBrokerOrAdmin(jwt));
         return ResponseEntity.ok(propertyDTO);
     }
 

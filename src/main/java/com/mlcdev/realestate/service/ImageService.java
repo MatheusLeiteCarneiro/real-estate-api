@@ -30,14 +30,16 @@ public class ImageService {
     private String propertyImageFolder;
 
     @Transactional(readOnly = true)
-    public List<ImageDTO> findAllImages(UUID propertyId) {
+    public List<ImageDTO> findAllImages(UUID propertyId, boolean canViewUnavailable) {
+        verifyIfPropertyIsUnavailableAndUserHasPermission(propertyId,canViewUnavailable);
         log.debug("Retrieving all images from the property with ID: {}", propertyId);
         List<Image> imageList = imageRepository.findAllByPropertyId(propertyId);
         return imageList.stream().sorted(Comparator.comparing(Image::isPrimary).reversed()).map(ImageMapper::entityToDTO).toList();
     }
 
     @Transactional(readOnly = true)
-    public ImageDTO findPrimaryImage(UUID propertyId) {
+    public ImageDTO findPrimaryImage(UUID propertyId, boolean canViewUnavailable) {
+        verifyIfPropertyIsUnavailableAndUserHasPermission(propertyId,canViewUnavailable);
         log.debug("Retrieving primary image from the property with ID: {}", propertyId);
         Image primaryImage = imageRepository.findByPropertyIdAndIsPrimaryTrue(propertyId).orElseThrow(() -> new NotFoundException("Primary Image not found for property with Id: " + propertyId));
         return ImageMapper.entityToDTO(primaryImage);
@@ -184,6 +186,13 @@ public class ImageService {
         }
         log.debug("The property and the image are related");
         return image;
+    }
+
+    private void verifyIfPropertyIsUnavailableAndUserHasPermission(UUID propertyId, boolean canViewUnavailable){
+        Optional<Boolean> propertyAvailable = propertyRepository.isAvailableById(propertyId);
+        if(propertyAvailable.isEmpty() || (!propertyAvailable.get() && !canViewUnavailable)){
+            throw new NotFoundException("Property with ID: " + propertyId + " not found");
+        }
     }
 
 }

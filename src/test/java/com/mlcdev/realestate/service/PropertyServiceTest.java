@@ -97,7 +97,7 @@ public class PropertyServiceTest {
 
             when(propertyRepository.findById(propertyGeneratedId)).thenReturn(Optional.of(property));
 
-            PropertyDetailDTO responseDTO = propertyService.findById(propertyGeneratedId);
+            PropertyDetailDTO responseDTO = propertyService.findById(propertyGeneratedId, false);
 
             verify(propertyRepository).findById(propertyGeneratedId);
 
@@ -105,6 +105,23 @@ public class PropertyServiceTest {
             Assertions.assertEquals(propertyGeneratedId, responseDTO.getId());
             Assertions.assertEquals(property.getTitle(), responseDTO.getTitle());
             Assertions.assertEquals(property.getPrice(), responseDTO.getPrice());
+        }
+
+        @Test
+        @DisplayName("Should return unavailable property when user is authenticated")
+        void findByIdShouldReturnUnavailablePropertyWhenUserIsAuthenticated() {
+            UUID propertyId = UUID.randomUUID();
+            Property property = buildGenericProperty(propertyId);
+            property.setAvailable(false);
+
+            when(propertyRepository.findById(propertyId))
+                    .thenReturn(Optional.of(property));
+
+            PropertyDetailDTO result =
+                    propertyService.findById(propertyId, true);
+
+            verify(propertyRepository).findById(propertyId);
+            Assertions.assertFalse(result.isAvailable());
         }
 
         @Test
@@ -286,12 +303,33 @@ public class PropertyServiceTest {
 
             NotFoundException exception = Assertions.assertThrows(
                     NotFoundException.class,
-                    () -> propertyService.findById(propertyId)
+                    () -> propertyService.findById(propertyId, false)
             );
 
             verify(propertyRepository).findById(propertyId);
 
             Assertions.assertEquals("Property with ID: " + propertyId + " not found", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should throw NotFoundException when property is unavailable and user is not authenticated")
+        void findByIdShouldThrowNotFoundExceptionWhenPropertyUnavailableAndUserNotAuthenticated() {
+            UUID propertyGeneratedId = UUID.randomUUID();
+
+            Property property = buildGenericProperty(propertyGeneratedId);
+
+            property.setAvailable(false);
+
+            when(propertyRepository.findById(propertyGeneratedId)).thenReturn(Optional.of(property));
+
+            NotFoundException exception = Assertions.assertThrows(
+                    NotFoundException.class,
+                    () -> propertyService.findById(propertyGeneratedId, false)
+            );
+
+            verify(propertyRepository).findById(propertyGeneratedId);
+
+            Assertions.assertEquals("Property with ID: " + propertyGeneratedId + " not found", exception.getMessage());
         }
 
         @Test
