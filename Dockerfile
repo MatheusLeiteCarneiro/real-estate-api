@@ -17,7 +17,13 @@ FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
-COPY --from=build /app/target/real-estate-0.0.1-SNAPSHOT.jar app.jar
+RUN groupadd --system appgroup \
+    && useradd --system --gid appgroup --no-create-home appuser
+
+COPY --from=build --chown=appuser:appgroup \
+    /app/target/real-estate-api.jar app.jar
+
+USER appuser
 
 EXPOSE 8080
 

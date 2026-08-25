@@ -29,3 +29,6 @@ jobs:
 
       - name: Run verification
         run: ./mvnw clean verify
+
+      - name: Build Docker image
+        run: docker build --tag real-estate-api:ci .
