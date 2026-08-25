@@ -7,6 +7,9 @@
 ![OAuth2](https://img.shields.io/badge/OAuth2-PKCE-000000?style=for-the-badge)
 ![Flyway](https://img.shields.io/badge/Flyway-Migrations-CC0200?style=for-the-badge&logo=flyway&logoColor=white)
 
+[![CI](https://img.shields.io/github/actions/workflow/status/MatheusLeiteCarneiro/real-estate-api/ci.yml?branch=main&style=for-the-badge&logo=github&label=CI)](https://github.com/MatheusLeiteCarneiro/real-estate-api/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
 A REST API for a real estate platform built with Spring Boot, PostgreSQL, OAuth2 Authorization Code with PKCE, JWT, Cloudinary, Flyway, Swagger, Docker Compose, and Postman.
 
 The project started as a way to practice Java backend development with a more realistic structure than a simple CRUD. It includes authentication, role-based access, broker ownership rules, validation, file upload handling, database migrations, API documentation, and environment-based configuration.
@@ -126,7 +129,10 @@ The API uses Spring Authorization Server and protects business endpoints as a JW
 
 - `ADMIN` implies `BROKER` through Spring Security role hierarchy.
 - Access tokens include `authorities` and `username` claims.
-- Broker mutations are checked against property ownership.
+- Visitors can only retrieve available properties.
+- Any authenticated `BROKER` or `ADMIN` can retrieve unavailable properties, regardless of ownership.
+- Property ownership restricts updates and deletions, not authenticated read access.
+- Broker mutations are checked against property ownership, while `ADMIN` can act across broker-owned resources.
 - Deactivating a user invalidates that user's persisted OAuth2 authorizations.
 - Passwords are encoded with BCrypt.
 - New user passwords must contain uppercase, lowercase, number, and special character.
@@ -313,6 +319,10 @@ http://localhost:8080/swagger-ui/index.html
 
 The OpenAPI configuration includes an OAuth2 Authorization Code flow with PKCE.
 
+### Authenticated Endpoint Example
+
+![Authenticated property creation endpoint in Swagger UI](docs/imgs/swagger-example.png)
+
 For local development, use:
 
 ```text
@@ -412,10 +422,10 @@ The migrations cover:
 
 ## Testing
 
-Run the test suite with:
+Run the complete verification lifecycle with:
 
 ```bash
-./mvnw test
+./mvnw clean verify
 ```
 
 The current test structure includes coverage for:
@@ -425,6 +435,10 @@ The current test structure includes coverage for:
 - Property service behavior
 - Broker ownership validation
 - Strong password validation
+- PostgreSQL integration tests using Testcontainers
+- Flyway migration validation against a real PostgreSQL 15 container
+- Property visibility and authorization integration tests
+- Image upload rollback behavior
 
 ## Example Request
 
@@ -476,8 +490,6 @@ This project covers:
 
 Potential next improvements:
 
-- Add CI pipeline with test and build stages
-- Add Testcontainers for PostgreSQL integration tests
 - Add deployment manifests for a cloud provider
 - Add API rate limiting
 - Add audit logging for admin actions
