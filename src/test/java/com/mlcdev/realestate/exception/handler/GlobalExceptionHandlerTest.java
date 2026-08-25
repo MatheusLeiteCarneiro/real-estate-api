@@ -44,7 +44,7 @@ class GlobalExceptionHandlerTest {
         ReflectionTestUtils.setField(
                 handler,
                 "maxRequestSize",
-                "200MB"
+                "100MB"
         );
 
         mockMvc = MockMvcBuilders
@@ -161,7 +161,7 @@ class GlobalExceptionHandlerTest {
                         .value(
                                 "Uploaded file or request exceeds the maximum "
                                         + "allowed size. Max file size: 10MB. "
-                                        + "Max request size: 200MB"
+                                        + "Max request size: 100MB"
                         ))
                 .andExpect(jsonPath("$.path")
                         .value("/test/upload"));

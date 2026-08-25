@@ -368,8 +368,8 @@ Important variables:
 | `SPRING_PROFILES_ACTIVE`     | Spring profile, usually `dev` locally                |
 | `CLOUDINARY_URL`             | Cloudinary connection URL                            |
 | `PROPERTY_IMAGE_FOLDER`      | Cloudinary folder for property images                |
-| `MAX_FILE_SIZE`              | Maximum size allowed for each uploaded file          |
-| `MAX_REQUEST_SIZE`           | Maximum size allowed for the full multipart request  |
+| `MAX_FILE_SIZE`              | Maximum size for each uploaded file (default: 10MB)  |
+| `MAX_REQUEST_SIZE`           | Maximum total size per request (default: 100MB)      |
 | `POSTGRES_DB`                | Database name                                        |
 | `POSTGRES_USER`              | Database user                                        |
 | `POSTGRES_PASSWORD`          | Database password                                    |
@@ -390,7 +390,7 @@ Important variables:
 | `JWT_PUBLIC_KEY`             | Public RSA key location                              |
 | `JWT_PRIVATE_KEY`            | Private RSA key location                             |
 
-Cloudinary Free plan has a 10MB upload limit per image, so `MAX_FILE_SIZE` should remain compatible with your Cloudinary account limits.
+Uploads are limited to 10MB per file and 100MB per multipart request. Keep `MAX_FILE_SIZE` compatible with your Cloudinary account limits.
 
 ## Database Migrations
 
